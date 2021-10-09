@@ -10,11 +10,11 @@ from utility.static import now, strf_time, timedelta_sec, timedelta_day, strp_ti
 
 
 class BackTesterStockStg:
-    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df_mt_):
+    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df3_):
         self.q = q_
         self.code_list = code_list_
         self.df_name = df1_
-        self.df_mt = df_mt_
+        self.df_mt = df3_
 
         self.testperiod = var_[0]
         self.totaltime = var_[1]
@@ -305,12 +305,12 @@ class BackTesterStockStg:
 
 
 class Total:
-    def __init__(self, q_, last_, totaltime_, df1_):
+    def __init__(self, q_, last_, df1_, totaltime_):
         super().__init__()
         self.q = q_
         self.last = last_
-        self.totaltime = totaltime_
         self.df_name = df1_
+        self.totaltime = totaltime_
         self.Start()
 
     def Start(self):
