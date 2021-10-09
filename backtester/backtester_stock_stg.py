@@ -178,6 +178,7 @@ class BackTesterStockStg:
         현재가 = self.df['현재가'][self.index]
         등락율 = self.df['등락율'][self.index]
         고저평균대비등락율 = self.df['고저평균대비등락율'][self.index]
+        VI아래5호가 = self.df['VI아래5호가'][self.index]
         체결강도 = self.df['체결강도'][self.index]
         체결강도평균 = self.df['체결강도평균'][self.index]
         최고체결강도 = self.df['최고체결강도'][self.index]
