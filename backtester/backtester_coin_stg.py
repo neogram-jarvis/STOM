@@ -1,13 +1,10 @@
 import os
 import sys
-import sqlite3
-import datetime
-import pandas as pd
 from matplotlib import pyplot as plt
 from multiprocessing import Process, Queue
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from utility.setting import DB_BACKTEST, DB_COIN_TICK, DB_COIN_STRETEGY
-from utility.static import strf_time, timedelta_sec, timedelta_day, strp_time
+from utility.static import *
+from utility.setting import *
 
 
 class BackTesterCoinStg:

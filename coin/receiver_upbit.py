@@ -5,8 +5,8 @@ import pyupbit
 from PyQt5.QtCore import QThread
 from pyupbit import WebSocketManager
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from utility.static import now
-from utility.setting import ui_num, DICT_SET
+from utility.static import *
+from utility.setting import *
 
 
 class WebsTicker(QThread):

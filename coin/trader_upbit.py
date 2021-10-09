@@ -3,8 +3,8 @@ import sys
 import time
 import pyupbit
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from utility.static import *
 from utility.setting import *
-from utility.static import now, timedelta_sec, strf_time, strp_time
 
 
 class TraderUpbit:

@@ -15,14 +15,14 @@ DB_COIN_TICK = f'{SYSTEM_PATH}/database/coin_tick.db'
 DB_STOCK_STRETEGY = f'{SYSTEM_PATH}/database/stock_strategy.db'
 DB_COIN_STRETEGY = f'{SYSTEM_PATH}/database/coin_strategy.db'
 
-conn = sqlite3.connect(DB_SETTING)
-df_m = pd.read_sql('SELECT * FROM main', conn).set_index('index')
-df_s = pd.read_sql('SELECT * FROM stock', conn).set_index('index')
-df_c = pd.read_sql('SELECT * FROM coin', conn).set_index('index')
-df_k = pd.read_sql('SELECT * FROM kiwoom', conn).set_index('index')
-df_u = pd.read_sql('SELECT * FROM upbit', conn).set_index('index')
-df_t = pd.read_sql('SELECT * FROM telegram', conn).set_index('index')
-conn.close()
+connn = sqlite3.connect(DB_SETTING)
+df_m = pd.read_sql('SELECT * FROM main', connn).set_index('index')
+df_s = pd.read_sql('SELECT * FROM stock', connn).set_index('index')
+df_c = pd.read_sql('SELECT * FROM coin', connn).set_index('index')
+df_k = pd.read_sql('SELECT * FROM kiwoom', connn).set_index('index')
+df_u = pd.read_sql('SELECT * FROM upbit', connn).set_index('index')
+df_t = pd.read_sql('SELECT * FROM telegram', connn).set_index('index')
+connn.close()
 
 DICT_SET = {
     '키움콜렉터': df_m['키움콜렉터'][0],

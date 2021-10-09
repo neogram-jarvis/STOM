@@ -18,7 +18,8 @@ from utility.sound import Sound
 from utility.query import Query
 from utility.query_tick import QueryTick
 from utility.telegram_msg import TelegramMsg
-from utility.static import now, strf_time, strp_time, changeFormat, thread_decorator, comma2int, comma2float
+from utility.static import *
+from utility.setting import *
 
 
 class Window(QtWidgets.QMainWindow):

@@ -1,9 +1,8 @@
 import os
 import sys
-import pandas as pd
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from utility.setting import ui_num
-from utility.static import now, timedelta_sec, timedelta_hour, strp_time, strf_time
+from utility.static import *
+from utility.setting import *
 
 
 class CollectorUpbit:

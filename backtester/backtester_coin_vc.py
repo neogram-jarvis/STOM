@@ -1,12 +1,10 @@
 import os
 import sys
-import sqlite3
-import pandas as pd
 from matplotlib import pyplot as plt
 from multiprocessing import Process, Queue
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from utility.setting import DB_COIN_TICK, DB_BACKTEST, GRAPH_PATH
-from utility.static import now, strf_time, strp_time, timedelta_sec, timedelta_day
+from utility.static import *
+from utility.setting import *
 
 BATTING = 20000000     # 종목당 배팅금액
 TESTPERIOD = 10        # 백테스팅 기간
