@@ -249,8 +249,8 @@ class TraderUpbit:
                 cp = round(tg / cc, 2)
                 self.UpdateSell(code, cp, cc)
 
+    """ 주문과 체결확인의 리턴값에 에러가 있을 경우 에러명과 메세지를 로그에 기록한다."""
     def CheckError(self, ret):
-        """ 주문과 체결확인의 리턴값에 에러가 있을 경우 에러명과 메세지를 로그에 기록한다."""
         if list(ret.keys())[0] == 'error':
             self.windowQ.put([ui_num['C로그텍스트'], f"{ret['error']['name']} : {ret['error']['message']}"])
             return False
