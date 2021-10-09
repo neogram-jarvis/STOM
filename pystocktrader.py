@@ -979,7 +979,6 @@ class Window(QtWidgets.QMainWindow):
         self.cs_textEdit_03.append(coin_sell_signal)
         windowQ.put([ui_num['C전략텍스트'], '매도전략 모듈추가 완료'])
 
-    # noinspection PyMethodMayBeStatic
     def ButtonClicked_70(self):
         cstgQ.put(['매도전략중지', ''])
         self.css_pushButton_12.setStyleSheet(style_bc_dk)
