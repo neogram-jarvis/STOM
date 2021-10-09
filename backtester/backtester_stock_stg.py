@@ -13,7 +13,7 @@ class BackTesterStockStg:
     def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df_mt_):
         self.q = q_
         self.code_list = code_list_
-        self.name = df1_
+        self.df_name = df1_
         self.df_mt = df_mt_
 
         self.testperiod = var_[0]
@@ -112,7 +112,7 @@ class BackTesterStockStg:
             return False
 
         매수 = False
-        종목명 = self.name['종목명'][self.code]
+        종목명 = self.df_name['종목명'][self.code]
         종목코드 = self.code
         현재가 = self.df['현재가'][self.index]
         시가 = self.df['시가'][self.index]
@@ -175,7 +175,7 @@ class BackTesterStockStg:
         eyun, 수익률 = self.GetEyunPer(bg, cg)
 
         매도 = False
-        종목명 = self.name['종목명'][self.code]
+        종목명 = self.df_name['종목명'][self.code]
         종목코드 = self.code
         보유수량 = self.buycount
         매수시간 = self.buytime
@@ -308,7 +308,7 @@ class Total:
         self.q = q_
         self.last = last_
         self.totaltime = totaltime_
-        self.name = df1_
+        self.df_name = df1_
         self.Start()
 
     def Start(self):
@@ -319,7 +319,7 @@ class Total:
         while True:
             data = self.q.get()
             if len(data) == 4:
-                name = self.name['종목명'][data[1]]
+                name = self.df_name['종목명'][data[1]]
                 if data[0] in df_tsg.index:
                     df_tsg.at[data[0]] = df_tsg['종목명'][data[0]] + ';' + name, \
                                          df_tsg['per'][data[0]] + data[2], \
