@@ -94,6 +94,7 @@ class BackTesterStockStg:
         conn.close()
 
     def BuyTerm(self):
+        # noinspection PyShadowingNames
         def now():
             return strp_time('%Y%m%d%H%M%S', self.index)
 
@@ -165,6 +166,7 @@ class BackTesterStockStg:
         self.buytime = strp_time('%Y%m%d%H%M%S', self.index)
 
     def SellTerm(self):
+        # noinspection PyShadowingNames
         def now():
             return strp_time('%Y%m%d%H%M%S', self.index)
 

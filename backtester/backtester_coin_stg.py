@@ -17,7 +17,6 @@ class BackTesterCoinStg:
         self.avgtime = var_[2]
         self.starttime = var_[3]
         self.endtime = var_[4]
-        print(self.testperiod, self.totaltime, self.avgtime, self.starttime, self.endtime)
 
         conn = sqlite3.connect(DB_COIN_STRETEGY)
         dfs = pd.read_sql('SELECT * FROM buy', conn).set_index('index')
@@ -95,6 +94,7 @@ class BackTesterCoinStg:
         conn.close()
 
     def BuyTerm(self):
+        # noinspection PyShadowingNames
         def now():
             return strp_time('%Y%m%d%H%M%S', self.index)
 
@@ -169,6 +169,7 @@ class BackTesterCoinStg:
         self.buytime = strp_time('%Y%m%d%H%M%S', self.index)
 
     def SellTerm(self):
+        # noinspection PyShadowingNames
         def now():
             return strp_time('%Y%m%d%H%M%S', self.index)
 
