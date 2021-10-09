@@ -150,6 +150,7 @@ class TraderUpbit:
             """ 0시 1분 초기화 """
             if 0 < int(strf_time('%H%M%S')) < 100 and not self.dict_bool['실현손익저장']:
                 self.SaveTotalGetbalDelcjtd()
+
             time.sleep(0.0001)
 
     """
