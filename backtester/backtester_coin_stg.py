@@ -1,12 +1,13 @@
 import os
 import sys
 import sqlite3
+import datetime
 import pandas as pd
 from matplotlib import pyplot as plt
 from multiprocessing import Process, Queue
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from utility.setting import DB_BACKTEST, DB_COIN_TICK, DB_COIN_STRETEGY
-from utility.static import now, strf_time, timedelta_sec, timedelta_day, strp_time
+from utility.static import strf_time, timedelta_sec, timedelta_day, strp_time
 
 
 class BackTesterCoinStg:
@@ -19,17 +20,14 @@ class BackTesterCoinStg:
         self.avgtime = var_[2]
         self.starttime = var_[3]
         self.endtime = var_[4]
+        print(self.testperiod, self.totaltime, self.avgtime, self.starttime, self.endtime)
 
         conn = sqlite3.connect(DB_COIN_STRETEGY)
         dfs = pd.read_sql('SELECT * FROM buy', conn).set_index('index')
-        self.buystrategy = compile(dfs['전략코드'][buystg_], '<string>', 'exec')
+        self.buystrategy = compile(dfs['전략코드'][buystg_].split('if 매수:')[0], '<string>', 'exec')
         dfs = pd.read_sql('SELECT * FROM sell', conn).set_index('index')
-        self.sellstrategy = compile(dfs['전략코드'][sellstg_], '<string>', 'exec')
+        self.sellstrategy = compile(dfs['전략코드'][sellstg_].split('if 매도:')[0], '<string>', 'exec')
         conn.close()
-
-        self.list_buy = []
-        self.list_sell = []
-        self.coinQ = Queue()
 
         self.code = None
         self.df = None
@@ -98,9 +96,11 @@ class BackTesterCoinStg:
                     self.Sell()
             self.Report(k + 1, tcount)
         conn.close()
-        self.coinQ.close()
 
     def BuyTerm(self):
+        def now():
+            return strp_time('%Y%m%d%H%M%S', self.index)
+
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
         self.ccond += 1
@@ -172,6 +172,9 @@ class BackTesterCoinStg:
         self.buytime = strp_time('%Y%m%d%H%M%S', self.index)
 
     def SellTerm(self):
+        def now():
+            return strp_time('%Y%m%d%H%M%S', self.index)
+
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
 
@@ -251,10 +254,8 @@ class BackTesterCoinStg:
 
     # noinspection PyMethodMayBeStatic
     def GetEyunPer(self, bg, cg):
-        gsfee = cg * 0.0005
-        gbfee = bg * 0.0005
-        sfee = gsfee - (gsfee % 10)
-        bfee = gbfee - (gbfee % 10)
+        sfee = cg * 0.0005
+        bfee = bg * 0.0005
         pg = int(cg - sfee - bfee)
         eyun = pg - bg
         per = round(eyun / bg * 100, 2)
@@ -384,7 +385,7 @@ class Total:
 
 
 if __name__ == "__main__":
-    start = now()
+    start = datetime.datetime.now()
 
     con = sqlite3.connect(DB_COIN_TICK)
     df = pd.read_sql("SELECT name FROM sqlite_master WHERE TYPE = 'table'", con)
@@ -420,5 +421,5 @@ if __name__ == "__main__":
         w.join()
 
     q.close()
-    end = now()
+    end = datetime.datetime.now()
     print(f" 백테스팅 소요시간 {end - start}")

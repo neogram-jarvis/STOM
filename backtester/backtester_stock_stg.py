@@ -1,12 +1,13 @@
 import os
 import sys
 import sqlite3
+import datetime
 import pandas as pd
 from matplotlib import pyplot as plt
 from multiprocessing import Process, Queue
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from utility.setting import DB_BACKTEST, DB_STOCK_STRETEGY, DB_STOCK_TICK
-from utility.static import now, strf_time, timedelta_sec, timedelta_day, strp_time
+from utility.static import strf_time, timedelta_sec, timedelta_day, strp_time
 
 
 class BackTesterStockStg:
@@ -24,14 +25,10 @@ class BackTesterStockStg:
 
         conn = sqlite3.connect(DB_STOCK_STRETEGY)
         dfs = pd.read_sql('SELECT * FROM buy', conn).set_index('index')
-        self.buystrategy = compile(dfs['전략코드'][buystg_], '<string>', 'exec')
+        self.buystrategy = compile(dfs['전략코드'][buystg_].split('if 매수:')[0], '<string>', 'exec')
         dfs = pd.read_sql('SELECT * FROM sell', conn).set_index('index')
-        self.sellstrategy = compile(dfs['전략코드'][sellstg_], '<string>', 'exec')
+        self.sellstrategy = compile(dfs['전략코드'][sellstg_].split('if 매도:')[0], '<string>', 'exec')
         conn.close()
-
-        self.list_buy = []
-        self.list_sell = []
-        self.stockQ = Queue()
 
         self.code = None
         self.df = None
@@ -98,9 +95,11 @@ class BackTesterStockStg:
                     self.Sell()
             self.Report(k + 1, tcount)
         conn.close()
-        self.stockQ.close()
 
     def BuyTerm(self):
+        def now():
+            return strp_time('%Y%m%d%H%M%S', self.index)
+
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
         try:
@@ -169,6 +168,9 @@ class BackTesterStockStg:
         self.buytime = strp_time('%Y%m%d%H%M%S', self.index)
 
     def SellTerm(self):
+        def now():
+            return strp_time('%Y%m%d%H%M%S', self.index)
+
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
 
@@ -370,7 +372,7 @@ class Total:
 
 
 if __name__ == "__main__":
-    start = now()
+    start = datetime.datetime.now()
 
     con = sqlite3.connect(DB_STOCK_TICK)
     df1 = pd.read_sql('SELECT * FROM codename', con).set_index('index')
@@ -409,5 +411,5 @@ if __name__ == "__main__":
         w.join()
 
     q.close()
-    end = now()
+    end = datetime.datetime.now()
     print(f" 백테스팅 소요시간 {end - start}")
