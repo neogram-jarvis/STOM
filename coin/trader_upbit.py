@@ -240,6 +240,11 @@ class TraderUpbit:
         if ret is not None:
             if list(ret.keys())[0] != 'error':
                 trades = ret['trades']
+                cp = float(trades[0]['price'])
+                cc = float(trades[0]['volume'])
+                if len(trades) != 1:
+                    print(trades)
+                """
                 if len(trades) == 1:
                     cp = float(trades[0]['price'])
                     cc = float(trades[0]['volume'])
@@ -250,6 +255,7 @@ class TraderUpbit:
                         tg += float(trades[i]['price']) * float(trades[i]['volume'])
                         cc += float(trades[i]['volume'])
                     cp = round(tg / cc, 2)
+                """
                 self.UpdateBuy(code, cp, cc)
             else:
                 self.ErrorCode(ret['error'])
