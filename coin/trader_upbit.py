@@ -255,7 +255,7 @@ class TraderUpbit:
                 self.ErrorCode(ret['error'])
 
     def CheckSellChegeol(self):
-        code = self.buy_uuid[0]
+        code = self.sell_uuid[0]
         ret = self.upbit.get_order(self.sell_uuid[1])
         if ret is not None:
             if list(ret.keys())[0] != 'error':
