@@ -126,7 +126,6 @@ columns_su = ['Access_key', 'Secret_key']
 columns_st = ['str_bot', 'int_id']
 
 init_var = '#def __init__(self)'
-
 stock_buy_var = '''"""
 def BuyStrategy(self, *args)
 매수(True), 종목명(str), 종목코드(str), 현재가(int), 시가(int), 고가(int), 저가(int), 등락율(float), 고저평균대비등락율(float),
@@ -140,7 +139,6 @@ def SellStrategy(self, *args)
 체결강도(float), 체결강도평균(float), 최고체결강도(float), 초당거래대금(int), 초당거래대금평균(int), VI아래5호가(int), 매도총잔량(int), 매수총잔량(int),
 매도호가2(int), 매도호가1(int), 매수호가1(int), 매수호가2(int), 매도잔량2(int), 매도잔량1(int), 매수잔량1(int), 매수잔량2(int)
 """'''
-
 stock_buy_signal = '''
 if 매수:
     매수수량 = int(self.int_tujagm / 현재가)
@@ -163,7 +161,6 @@ if 매도:
         예상체결가 = round((매수호가1 * 보유수량1 + 매수호가2 * 남은보유수량) / 보유수량, 2)
     self.list_sell.append(종목코드)
     self.stockQ.put(['매도', 종목코드, 종목명, 예상체결가, 보유수량])'''
-
 coin_buy_var = '''"""
 def BuyStrategy(self, *args)
 매수(True), 종목명(str), 현재가(int), 시가(int), 고가(int), 저가(int), 등락율(float), 고저평균대비등락율(float), 당일거래대금(int), 초당거래대금(int),
@@ -182,7 +179,6 @@ def SellStrategy(self, *args)
 매도잔량5(float), 매도잔량4(float), 매도잔량3(float), 매도잔량2(float), 매도잔량1(float),
 매수잔량1(float), 매수잔량2(float), 매수잔량3(float), 매수잔량4(float), 매수잔량5(float)
 """'''
-
 coin_buy_signal = '''
 if 매수:
     매수수량 = round(self.int_tujagm / 현재가, 8)
