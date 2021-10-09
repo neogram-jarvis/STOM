@@ -99,10 +99,10 @@ class TraderUpbit:
             tbg = df['매수금액'].sum()
             tsg = df['매도금액'].sum()
             tcg = df['수익금'].sum()
-            bfee = int(round(tbg * 0.0005))
-            sfee = int(round(tsg * 0.0005))
+            bfee = int(round(tbg * self.dict_intg['업비트수수료']))
+            sfee = int(round(tsg * self.dict_intg['업비트수수료']))
             cbg = self.df_jg['매입금액'].sum()
-            cfee = int(round(cbg * 0.0005))
+            cfee = int(round(cbg * self.dict_intg['업비트수수료']))
             chujeonjasan = 100000000 + tcg - bfee - sfee
             self.dict_intg['예수금'] = int(chujeonjasan - cbg - cfee)
             self.dict_intg['종목당투자금'] = int(chujeonjasan * 0.99 / DICT_SET['최대매수종목수2'])
