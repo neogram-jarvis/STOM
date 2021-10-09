@@ -101,9 +101,9 @@ class BackTesterCoinStg:
         self.coinQ.close()
 
     def BuyTerm(self):
-        self.ccond += 1
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
+        self.ccond += 1
         if self.ccond < self.avgtime:
             return False
 
@@ -150,7 +150,7 @@ class BackTesterCoinStg:
 
         if 매수:
             return True
-        return True
+        return False
 
     def Buy(self):
         if self.df['매도호가1'][self.index] * self.df['매도잔량1'][self.index] >= 10000000:

@@ -101,6 +101,8 @@ class BackTesterStockStg:
         self.stockQ.close()
 
     def BuyTerm(self):
+        if type(self.df['현재가'][self.index]) == pd.Series:
+            return False
         try:
             if self.code not in self.df_mt['거래대금순위'][self.index]:
                 self.ccond = 0
@@ -145,7 +147,7 @@ class BackTesterStockStg:
 
         if 매수:
             return True
-        return True
+        return False
 
     def Buy(self):
         if self.df['매도호가1'][self.index] * self.df['매도잔량1'][self.index] >= 10000000:
