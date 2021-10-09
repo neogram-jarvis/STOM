@@ -10,9 +10,10 @@ from utility.static import now, strf_time, timedelta_sec, timedelta_day, strp_ti
 
 
 class BackTesterStockStg:
-    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df_mt_):
+    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df_mt_):
         self.q = q_
         self.code_list = code_list_
+        self.name = df1_
         self.df_mt = df_mt_
 
         self.testperiod = var_[0]
@@ -110,7 +111,8 @@ class BackTesterStockStg:
             return False
 
         매수 = False
-        종목명 = self.code
+        종목명 = self.name['종목명'][self.code]
+        종목코드 = self.code
         현재가 = self.df['현재가'][self.index]
         시가 = self.df['시가'][self.index]
         고가 = self.df['고가'][self.index]
@@ -172,7 +174,8 @@ class BackTesterStockStg:
         eyun, 수익률 = self.GetEyunPer(bg, cg)
 
         매도 = False
-        종목명 = self.code
+        종목명 = self.name['종목명'][self.code]
+        종목코드 = self.code
         보유수량 = self.buycount
         매수시간 = self.buytime
         현재가 = self.df['현재가'][self.index]
@@ -394,7 +397,7 @@ if __name__ == "__main__":
         workcount = int(last / int(sys.argv[6])) + 1
         for j in range(0, last, workcount):
             code_list = table_list[j:j + workcount]
-            p = Process(target=BackTesterStockStg, args=(q, code_list, var, buystg, sellstg, df3))
+            p = Process(target=BackTesterStockStg, args=(q, code_list, var, buystg, sellstg, df1, df3))
             procs.append(p)
             p.start()
         for p in procs:
