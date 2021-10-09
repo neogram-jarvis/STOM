@@ -113,7 +113,7 @@ class BackTesterStockStg:
         if self.ccond < self.avgtime:
             return False
 
-        매수 = False
+        매수 = True
         종목명 = self.df_name['종목명'][self.code]
         종목코드 = self.code
         현재가 = self.df['현재가'][self.index]
