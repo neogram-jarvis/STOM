@@ -10,7 +10,7 @@ from utility.static import now, strf_time, timedelta_sec, timedelta_day, strp_ti
 
 
 class BackTesterCoinStg:
-    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, dummyQ_):
+    def __init__(self, q_, code_list_, var_, buystg_, sellstg_):
         self.q = q_
         self.code_list = code_list_
 
@@ -29,7 +29,7 @@ class BackTesterCoinStg:
 
         self.list_buy = []
         self.list_sell = []
-        self.coinQ = dummyQ_
+        self.coinQ = Queue()
 
         self.code = None
         self.df = None
@@ -98,6 +98,7 @@ class BackTesterCoinStg:
                     self.Sell()
             self.Report(k + 1, tcount)
         conn.close()
+        self.coinQ.close()
 
     def BuyTerm(self):
         self.ccond += 1
@@ -389,7 +390,6 @@ if __name__ == "__main__":
     df = pd.read_sql("SELECT name FROM sqlite_master WHERE TYPE = 'table'", con)
     con.close()
 
-    dummyQ = Queue()
     q = Queue()
 
     if len(df) > 0:
@@ -412,12 +412,13 @@ if __name__ == "__main__":
         workcount = int(last / int(sys.argv[6])) + 1
         for j in range(0, last, workcount):
             code_list = table_list[j:j + workcount]
-            p = Process(target=BackTesterCoinStg, args=(q, code_list, var, buystg, sellstg, dummyQ))
+            p = Process(target=BackTesterCoinStg, args=(q, code_list, var, buystg, sellstg))
             procs.append(p)
             p.start()
         for p in procs:
             p.join()
         w.join()
 
+    q.close()
     end = now()
     print(f" 백테스팅 소요시간 {end - start}")

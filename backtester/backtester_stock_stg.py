@@ -10,7 +10,7 @@ from utility.static import now, strf_time, timedelta_sec, timedelta_day, strp_ti
 
 
 class BackTesterStockStg:
-    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df_mt_, dummyQ_):
+    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df_mt_):
         self.q = q_
         self.code_list = code_list_
         self.name = df1_
@@ -31,7 +31,7 @@ class BackTesterStockStg:
 
         self.list_buy = []
         self.list_sell = []
-        self.stockQ = dummyQ_
+        self.stockQ = Queue()
 
         self.code = None
         self.df = None
@@ -98,6 +98,7 @@ class BackTesterStockStg:
                     self.Sell()
             self.Report(k + 1, tcount)
         conn.close()
+        self.stockQ.close()
 
     def BuyTerm(self):
         try:
@@ -379,7 +380,6 @@ if __name__ == "__main__":
     table_list.remove('codename')
     last = len(table_list)
 
-    dummyQ = Queue()
     q = Queue()
 
     if len(df2) > 0:
@@ -399,12 +399,13 @@ if __name__ == "__main__":
         workcount = int(last / int(sys.argv[6])) + 1
         for j in range(0, last, workcount):
             code_list = table_list[j:j + workcount]
-            p = Process(target=BackTesterStockStg, args=(q, code_list, var, buystg, sellstg, df1, df3, dummyQ))
+            p = Process(target=BackTesterStockStg, args=(q, code_list, var, buystg, sellstg, df1, df3))
             procs.append(p)
             p.start()
         for p in procs:
             p.join()
         w.join()
 
+    q.close()
     end = now()
     print(f" 백테스팅 소요시간 {end - start}")
