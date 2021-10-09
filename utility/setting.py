@@ -145,12 +145,24 @@ stock_buy_signal = '''
 if 매수:
     매수수량 = int(self.int_tujagm / 현재가)
     if 매수수량 > 0:
+        if 매수수량 <= 매도잔량1:
+            예상체결가 = 매도호가1
+        else:
+            매수수량1 = 매도잔량1
+            남은매수수량 = 매수수량 - 매수수량1
+            예상체결가 = round((매도호가1 * 매수수량1 + 매도호가2 * 남은매수수량) / 매수수량, 2)
         self.list_buy.append(종목코드)
-        self.stockQ.put(['매수', 종목코드, 종목명, 현재가, 매수수량])'''
+        self.stockQ.put(['매수', 종목코드, 종목명, 예상체결가, 매수수량])'''
 stock_sell_signal = '''
 if 매도:
+    if 보유수량 <= 매수잔량1:
+        예상체결가 = 매수호가1
+    else:
+        보유수량1 = 매수잔량1
+        남은보유수량 = 보유수량 - 보유수량1
+        예상체결가 = round((매수호가1 * 보유수량1 + 매수호가2 * 남은보유수량) / 보유수량, 2)
     self.list_sell.append(종목코드)
-    self.stockQ.put(['매도', 종목코드, 종목명, 현재가, 보유수량])'''
+    self.stockQ.put(['매도', 종목코드, 종목명, 예상체결가, 보유수량])'''
 
 coin_buy_var = '''"""
 def BuyStrategy(self, *args)
@@ -175,12 +187,24 @@ coin_buy_signal = '''
 if 매수:
     매수수량 = round(self.int_tujagm / 현재가, 8)
     if 매수수량 > 0.00000001:
+        if 매수수량 <= 매도잔량1:
+            예상체결가 = 매도호가1
+        else:
+            매수수량1 = 매도잔량1
+            남은매수수량 = 매수수량 - 매수수량1
+            예상체결가 = round((매도호가1 * 매수수량1 + 매도호가2 * 남은매수수량) / 매수수량, 2)
         self.list_buy.append(종목명)
-        self.coinQ.put(['매수', 종목명, 현재가, 매수수량])'''
+        self.coinQ.put(['매수', 종목명, 예상체결가, 매수수량])'''
 coin_sell_signal = '''
 if 매도:
+    if 보유수량 <= 매수잔량1:
+        예상체결가 = 매수호가1
+    else:
+        보유수량1 = 매수잔량1
+        남은보유수량 = 보유수량 - 보유수량1
+        예상체결가 = round((매수호가1 * 보유수량1 + 매수호가2 * 남은보유수량) / 보유수량, 2)
     self.list_sell.append(종목명)
-    self.coinQ.put(['매도', 종목명, 현재가, 보유수량])'''
+    self.coinQ.put(['매도', 종목명, 예상체결가, 보유수량])'''
 
 stock_buy1 = '''if 고저평균대비등락율 < 0:\n    매수 = False'''
 stock_buy2 = '''if 체결강도 < 체결강도평균 + 5:\n    매수 = False'''
