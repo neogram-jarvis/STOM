@@ -606,7 +606,7 @@ def SetUI(self):
     self.ssb_lineEdit_06.setGeometry(1290, 370, 55, 20)
 
     self.sb_pushButton_01.setGeometry(1010, 395, 165, 30)
-    self.sb_pushButton_02.setGeometry(1080, 395, 165, 30)
+    self.sb_pushButton_02.setGeometry(1180, 395, 165, 30)
 
     self.sss_comboBox.setGeometry(1010, 510, 165, 25)
     self.sss_lineEdit.setGeometry(1180, 510, 165, 25)
@@ -661,7 +661,7 @@ def SetUI(self):
     self.csb_lineEdit_06.setGeometry(1290, 370, 55, 20)
 
     self.cb_pushButton_01.setGeometry(1010, 395, 165, 30)
-    self.cb_pushButton_02.setGeometry(1080, 395, 165, 30)
+    self.cb_pushButton_02.setGeometry(1180, 395, 165, 30)
 
     self.css_comboBox.setGeometry(1010, 510, 165, 25)
     self.css_lineEdit.setGeometry(1180, 510, 165, 25)
