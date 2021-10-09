@@ -118,7 +118,7 @@ class BackTesterStockStg:
         등락율 = self.df['등락율'][self.index]
         고저평균대비등락율 = self.df['고저평균대비등락율'][self.index]
         당일거래대금 = self.df['당일거래대금'][self.index]
-        VI해제시간 = self.df['VI해제시간'][self.index]
+        VI해제시간 = strp_time('%Y%m%d%H%M%S', self.df['VI해제시간'][self.index])
         VI아래5호가 = self.df['VI아래5호가'][self.index]
         체결강도 = self.df['체결강도'][self.index]
         체결강도평균 = self.df['체결강도평균'][self.index]

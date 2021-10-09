@@ -185,7 +185,7 @@ if 매도:
 stock_buy1 = '''if 고저평균대비등락율 < 0:\n    매수 = False'''
 stock_buy2 = '''if 체결강도 < 체결강도평균 + 5:\n    매수 = False'''
 stock_buy3 = '''if 초당거래대금 < 초당거래대금평균 + 90:\n    매수 = False'''
-stock_buy4 = '''if now() < timedelta_sec(1800, VI해제시간):\n    매수 = False'''
+stock_buy4 = '''if now() < timedelta_sec(180, VI해제시간):\n    매수 = False'''
 stock_buy5 = '''if 매도총잔량 < 매수총잔량:\n    매수 = False'''
 stock_buy6 = '''if 매도잔량1 < 매수잔량1 * 2:\n    매수 = False'''
 
