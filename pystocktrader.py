@@ -643,9 +643,11 @@ class Window(QtWidgets.QMainWindow):
             multi = self.ssb_lineEdit_06.text()
             buystg = self.ssb_comboBox.currentText()
             sellstg = self.sss_comboBox.currentText()
-            if buystg == '' or sellstg == '' or testperiod == '' or totaltime == '' or avgtime == '' or \
-                    starttime == '' or endtime == '' or multi == '':
+            if testperiod == '' or totaltime == '' or avgtime == '' or starttime == '' or endtime == '' or multi == '':
                 QtWidgets.QMessageBox.critical(self, '오류 알림', '일부 설정값이 공백 상태입니다.\n')
+                return
+            if buystg == '' or sellstg == '':
+                QtWidgets.QMessageBox.critical(self, '오류 알림', '전략을 저장하고 콤보박스에서 선택하십시오.\n')
                 return
             self.backtester_proc = subprocess.Popen(
                     f'python {SYSTEM_PATH}/backtester/backtester_stock_stg.py '
@@ -887,9 +889,11 @@ class Window(QtWidgets.QMainWindow):
             multi = self.csb_lineEdit_06.text()
             buystg = self.csb_comboBox.currentText()
             sellstg = self.css_comboBox.currentText()
-            if buystg == '' or sellstg == '' or testperiod == '' or totaltime == '' or avgtime == '' or \
-                    starttime == '' or endtime == '' or multi == '':
+            if testperiod == '' or totaltime == '' or avgtime == '' or starttime == '' or endtime == '' or multi == '':
                 QtWidgets.QMessageBox.critical(self, '오류 알림', '일부 설정값이 공백 상태입니다.\n')
+                return
+            if buystg == '' or sellstg == '':
+                QtWidgets.QMessageBox.critical(self, '오류 알림', '전략을 저장하고 콤보박스에서 선택하십시오.\n')
                 return
             self.backtester_proc = subprocess.Popen(
                     f'python {SYSTEM_PATH}/backtester/backtester_coin_stg.py '
