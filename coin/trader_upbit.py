@@ -186,17 +186,12 @@ class TraderUpbit:
         elif self.upbit is not None:
             ret = self.upbit.buy_market_order(code, self.dict_intg['종목당투자금'])
             if ret is not None:
-                if list(ret.keys())[0] != 'error':
+                if self.CheckError(ret):
                     self.buy_uuid = [code, ret['uuid']]
                     self.dict_time['매수체결확인'] = timedelta_sec(1)
-                else:
-                    self.ErrorCode(ret['error'])
             else:
                 self.cstgQ.put(['매수취소', code])
                 self.windowQ.put([ui_num['C로그텍스트'], f'매매 시스템 오류 알림 - 주문 실패 {code}'])
-        else:
-            text = '시스템 명령 오류 알림 - 업비트 키값이 설정되지 않아 주문을 전송할 수 없습니다.'
-            self.windowQ.put([ui_num['C로그텍스트'], text])
 
         if self.dict_bool['실현손익저장'] and int(strf_time('%H%M%S')) > 100:
             self.dict_bool['실현손익저장'] = False
@@ -211,17 +206,12 @@ class TraderUpbit:
         elif self.upbit is not None:
             ret = self.upbit.sell_market_order(code, oc)
             if ret is not None:
-                if list(ret.keys())[0] != 'error':
+                if self.CheckError(ret):
                     self.sell_uuid = [code, ret['uuid']]
                     self.dict_time['매도체결확인'] = timedelta_sec(1)
-                else:
-                    self.ErrorCode(ret['error'])
             else:
                 self.cstgQ.put(['매도취소', code])
                 self.windowQ.put([ui_num['C로그텍스트'], f'매매 시스템 오류 알림 - 주문 실패 {code}'])
-        else:
-            text = '시스템 명령 오류 알림 - 업비트 키값이 설정되지 않아 주문을 전송할 수 없습니다.'
-            self.windowQ.put([ui_num['C로그텍스트'], text])
 
     def UpdateJango(self, code, c):
         prec = self.df_jg['현재가'][code]
@@ -231,58 +221,39 @@ class TraderUpbit:
             pg, sg, sp, bfee, sfee = self.GetPgSgSp(bg, oc * c)
             columns = ['현재가', '수익률', '평가손익', '평가금액']
             self.df_jg.at[code, columns] = c, sp, sg, pg
-            if code in self.dict_buyt.keys():
-                self.cstgQ.put([code, sp, oc, c, self.dict_buyt[code]])
+            self.cstgQ.put([code, sp, oc, c, self.dict_buyt[code]])
 
     def CheckBuyChegeol(self):
         code = self.buy_uuid[0]
         ret = self.upbit.get_order(self.buy_uuid[1])
-        if ret is not None:
-            if list(ret.keys())[0] != 'error':
-                trades = ret['trades']
-                cp = float(trades[0]['price'])
-                cc = float(trades[0]['volume'])
-                if len(trades) != 1:
-                    print(trades)
-                """
-                if len(trades) == 1:
-                    cp = float(trades[0]['price'])
-                    cc = float(trades[0]['volume'])
-                else:
-                    tg = 0
-                    cc = 0
-                    for i in range(len(trades)):
-                        tg += float(trades[i]['price']) * float(trades[i]['volume'])
-                        cc += float(trades[i]['volume'])
-                    cp = round(tg / cc, 2)
-                """
+        if ret is not None and self.CheckError(ret):
+            trades = ret['trades']
+            tg, cc = 0, 0
+            for i in range(len(trades)):
+                tg += float(trades[i]['price']) * float(trades[i]['volume'])
+                cc += float(trades[i]['volume'])
+            if cc > 0:
+                cp = round(tg / cc, 2)
                 self.UpdateBuy(code, cp, cc)
-            else:
-                self.ErrorCode(ret['error'])
 
     def CheckSellChegeol(self):
         code = self.sell_uuid[0]
         ret = self.upbit.get_order(self.sell_uuid[1])
-        if ret is not None:
-            if list(ret.keys())[0] != 'error':
-                if ret['state'] == 'done':
-                    trades = ret['trades']
-                    if len(trades) == 1:
-                        cp = float(trades[0]['price'])
-                        cc = float(trades[0]['volume'])
-                    else:
-                        tg = 0
-                        cc = 0
-                        for i in range(len(trades)):
-                            tg += float(trades[i]['price']) * float(trades[i]['volume'])
-                            cc += float(trades[i]['volume'])
-                        cp = round(tg / cc, 2)
-                    self.UpdateSell(code, cp, cc)
-            else:
-                self.ErrorCode(ret['error'])
+        if ret is not None and self.CheckError(ret):
+            trades = ret['trades']
+            tg, cc = 0, 0
+            for i in range(len(trades)):
+                tg += float(trades[i]['price']) * float(trades[i]['volume'])
+                cc += float(trades[i]['volume'])
+            if cc > 0:
+                cp = round(tg / cc, 2)
+                self.UpdateSell(code, cp, cc)
 
-    def ErrorCode(self, error):
-        self.windowQ.put([ui_num['C로그텍스트'], f"{error['name']} : {error['message']}"])
+    def CheckError(self, ret):
+        if list(ret.keys())[0] == 'error':
+            self.windowQ.put([ui_num['C로그텍스트'], f"{ret['error']['name']} : {ret['error']['message']}"])
+            return False
+        return True
 
     def UpdateBuy(self, code, cp, cc, cancle=False):
         dt = strf_time('%Y%m%d%H%M%S%f')
