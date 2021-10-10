@@ -502,8 +502,7 @@ class ReceiverKiwoom:
 
         if DICT_SET['키움트레이더'] and code in self.dict_gsjm.keys():
             injango = code in self.list_jang
-            data.append(name)
-            data.append(injango)
+            data += [name, injango]
             self.sstgQ.put(data)
             if injango:
                 self.stockQ.put([code, name, c])
