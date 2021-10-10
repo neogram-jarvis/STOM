@@ -1406,6 +1406,24 @@ class Window(QtWidgets.QMainWindow):
         self.UpdateTablewidget([ui_num[f'{gubun}당일합계'], df2])
         self.UpdateTablewidget([ui_num[f'{gubun}당일상세'], df])
 
+    def eventFilter(self, widget, event):
+        if event.type() == QtCore.QEvent.KeyPress and event.key() == Qt.Key_Tab:
+            if widget == self.ss_textEdit_01:
+                self.ss_textEdit_01.insertPlainText('    ')
+            elif widget == self.ss_textEdit_02:
+                self.ss_textEdit_02.insertPlainText('    ')
+            elif widget == self.ss_textEdit_03:
+                self.ss_textEdit_03.insertPlainText('    ')
+            elif widget == self.cs_textEdit_01:
+                self.cs_textEdit_01.insertPlainText('    ')
+            elif widget == self.cs_textEdit_02:
+                self.cs_textEdit_02.insertPlainText('    ')
+            elif widget == self.cs_textEdit_03:
+                self.cs_textEdit_03.insertPlainText('    ')
+            return True
+        else:
+            return QtWidgets.QMainWindow.eventFilter(self, widget, event)
+
     def closeEvent(self, a):
         buttonReply = QtWidgets.QMessageBox.question(
             self, "프로그램 종료", "프로그램을 종료합니다.",

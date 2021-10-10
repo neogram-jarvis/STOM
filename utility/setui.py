@@ -88,6 +88,7 @@ def SetUI(self):
         textedit = QtWidgets.QTextEdit(tab)
         textedit.setFont(qfont14)
         textedit.setStyleSheet(style_bc_dk)
+        textedit.installEventFilter(self)
         syntax.PythonHighlighter(textedit)
         return textedit
 
