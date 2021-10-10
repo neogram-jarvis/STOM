@@ -1,5 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5 import QtCore, QtGui, QtWidgets
+from utility import syntax
 from utility.setting import *
 
 
@@ -87,6 +88,7 @@ def SetUI(self):
         textedit = QtWidgets.QTextEdit(tab)
         textedit.setFont(qfont14)
         textedit.setStyleSheet(style_bc_dk)
+        syntax.PythonHighlighter(textedit)
         return textedit
 
     # noinspection PyUnresolvedReferences
