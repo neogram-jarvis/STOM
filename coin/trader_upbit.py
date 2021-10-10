@@ -80,7 +80,7 @@ class TraderUpbit:
         if len(self.df_jg) > 0:
             for code in self.df_jg.index:
                 df = self.df_cj[(self.df_cj['주문구분'] == '매수') & (self.df_cj['종목명'] == code)]
-                self.dict_buyt[code] = strp_time('%Y%m%d%H%M%S%f', df['체결시간'].loc[0])
+                self.dict_buyt[code] = strp_time('%Y%m%d%H%M%S%f', df['체결시간'].iloc[0])
                 self.creceivQ.put(['잔고편입',  code])
 
         self.windowQ.put([ui_num['C로그텍스트'], '시스템 명령 실행 알림 - 데이터베이스 불러오기 완료'])
