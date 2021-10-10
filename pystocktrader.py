@@ -68,7 +68,9 @@ class Window(QtWidgets.QMainWindow):
         self.qtimer3.timeout.connect(self.UpdateCpuper)
         self.qtimer3.start()
 
-        self.showqsize = False
+        self.showQsize = False
+        self.startUpbitTrader = False
+        self.startUpbitCollector = False
         self.backtester_proc = None
 
         self.receiver_coin_thread1 = WebsTicker(qlist)
@@ -91,9 +93,9 @@ class Window(QtWidgets.QMainWindow):
                 self.KiwoomCollectorStart()
             if DICT_SET['키움트레이더'] and self.int_time < DICT_SET['트레이더'] <= int(strf_time('%H%M%S')):
                 self.KiwoomTraderStart()
-        if DICT_SET['업비트콜렉터']:
+        if DICT_SET['업비트콜렉터'] and not self.startUpbitCollector:
             self.UpbitCollectorStart()
-        if DICT_SET['업비트트레이더']:
+        if DICT_SET['업비트트레이더'] and not self.startUpbitTrader:
             self.UpbitTraderStart()
         if DICT_SET['주식최적화백테스터'] and self.int_time < DICT_SET['주식백테시작시간'] <= int(strf_time('%H%M%S')):
             self.StockBacktestStart()
@@ -142,25 +144,22 @@ class Window(QtWidgets.QMainWindow):
                 self, '오류 알림', '키움 첫번째 계정이 설정되지 않아\n트레이더를 시작할 수 없습니다.\n계정 설정 후 다시 시작하십시오.\n')
 
     def UpbitCollectorStart(self):
-        if not self.receiver_coin_thread1.isRunning():
-            self.receiver_coin_thread1.start()
-        if not self.receiver_coin_thread2.isRunning():
-            self.receiver_coin_thread2.start()
-        if not self.collector_coin_proc.is_alive():
-            self.collector_coin_proc.start()
-            text = '코인 리시버 및 콜렉터를 시작하였습니다.'
-            soundQ.put(text)
-            teleQ.put(text)
+        self.receiver_coin_thread1.start()
+        self.receiver_coin_thread2.start()
+        self.collector_coin_proc.start()
+        text = '코인 리시버 및 콜렉터를 시작하였습니다.'
+        soundQ.put(text)
+        teleQ.put(text)
+        self.startUpbitCollector = True
 
     def UpbitTraderStart(self):
         if DICT_SET['Access_key'] is not None:
-            if not self.strategy_coin_proc.is_alive():
-                self.strategy_coin_proc.start()
-            if not self.trader_coin_proc.is_alive():
-                self.trader_coin_proc.start()
-                text = '코인 트레이더를 시작하였습니다.'
-                soundQ.put(text)
-                teleQ.put(text)
+            self.strategy_coin_proc.start()
+            self.trader_coin_proc.start()
+            text = '코인 트레이더를 시작하였습니다.'
+            soundQ.put(text)
+            teleQ.put(text)
+            self.startUpbitTrader = True
         else:
             QtWidgets.QMessageBox.critical(
                 self, '오류 알림', '업비트 계정이 설정되지 않아\n트레이더를 시작할 수 없습니다.\n계정 설정 후 다시 시작하십시오.\n')
@@ -186,7 +185,7 @@ class Window(QtWidgets.QMainWindow):
         self.cc_textEdit.clear()
 
     def UpdateWindowTitle(self):
-        if self.showqsize:
+        if self.showQsize:
             queryQ_size = query1Q.qsize() + query2Q.qsize()
             stocktickQ_size = tick1Q.qsize() + tick2Q.qsize() + tick3Q.qsize() + tick4Q.qsize()
             text = f'PyStockTrader                                                                   ' \
@@ -225,7 +224,7 @@ class Window(QtWidgets.QMainWindow):
         self.cpu_per = psutil.cpu_percent(interval=1)
 
     def ShowQsize(self):
-        self.showqsize = True if not self.showqsize else False
+        self.showQsize = True if not self.showQsize else False
 
     def CheckboxChanged_01(self, state):
         if state == Qt.Checked:
