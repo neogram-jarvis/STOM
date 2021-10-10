@@ -32,12 +32,10 @@ class PythonHighlighter(QSyntaxHighlighter):
         'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'not', 'or', 'pass', 'print',
         'raise', 'return', 'try', 'while', 'yield', 'None', 'True', 'False'
     ]
-
     operators = [
         '=', '==', '!=', '<', '<=', '>', '>=', '\+', '-', '\*', '/', '//', '\%', '\*\*',
         '\+=', '-=', '\*=', '/=', '\%=', '\^', '\|', '\&', '\~', '>>', '<<'
     ]
-
     braces = ['\{', '\}', '\(', '\)', '\[', '\]']
     type = ['int', 'float', 'round', 'str']
 
@@ -73,11 +71,6 @@ class PythonHighlighter(QSyntaxHighlighter):
                 self.setFormat(index, length, format_)
                 index = expression.indexIn(text, index + length)
         self.setCurrentBlockState(0)
-        """
-        in_multiline = self.match_multiline(text, *self.tri_single)
-        if not in_multiline:
-            in_multiline = self.match_multiline(text, *self.tri_double)
-        """
 
     def match_multiline(self, text, delimiter, in_state, style):
         if self.previousBlockState() == in_state:
