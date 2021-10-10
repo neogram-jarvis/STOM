@@ -413,7 +413,8 @@ class ReceiverKiwoom:
                     except Exception as e:
                         self.windowQ.put([ui_num['S단순텍스트'], f'OnReceiveRealData 주식체결 {e}'])
                     else:
-                        self.UpdateTickData(code, name, c, o, h, low, per, dm, ch, bids, asks, t, now())
+                        if code in self.dict_hoga.keys():
+                            self.UpdateTickData(code, name, c, o, h, low, per, dm, ch, bids, asks, t, now())
         elif realtype == '주식호가잔량':
             try:
                 tsjr = int(self.GetCommRealData(code, 121))
@@ -492,13 +493,8 @@ class ReceiverKiwoom:
 
         vitime = self.dict_vipr[code][1]
         vid5price = self.dict_vipr[code][4]
-        try:
-            tsjr, tbjr, s2hg, s1hg, b1hg, b2hg, s2jr, s1jr, b1jr, b2jr = self.dict_hoga[code]
-        except KeyError:
-            tsjr, tbjr, s2hg, s1hg, b1hg, b2hg, s2jr, s1jr, b1jr, b2jr = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-
-        data = [code, c, o, h, low, per, dm, ch, bids, asks, vitime, vid5price,
-                tsjr, tbjr, s2hg, s1hg, b1hg, b2hg, s2jr, s1jr, b1jr, b2jr, t, receivetime]
+        data = [code, c, o, h, low, per, dm, ch, bids, asks, vitime, vid5price]
+        data += self.dict_hoga[code] + [t, receivetime]
 
         if DICT_SET['키움트레이더'] and code in self.dict_gsjm.keys():
             injango = code in self.list_jang
