@@ -22,9 +22,11 @@ class BackTesterStockStg:
 
         conn = sqlite3.connect(DB_STOCK_STRETEGY)
         dfs = pd.read_sql('SELECT * FROM buy', conn).set_index('index')
-        self.buystrategy = compile(dfs['전략코드'][buystg_].split('if 매수:')[0], '<string>', 'exec')
+        buystategy = dfs['전략코드'][buystg_].split('if 매수:')[0] + '\nif 매수:\n    self.Buy()'
+        self.buystrategy = compile(buystategy, '<string>', 'exec')
         dfs = pd.read_sql('SELECT * FROM sell', conn).set_index('index')
-        self.sellstrategy = compile(dfs['전략코드'][sellstg_].split('if 매도:')[0], '<string>', 'exec')
+        sellstrategy = dfs['전략코드'][sellstg_].split('if 매도:')[0] + '\nif 매도:\n    self.Sell()'
+        self.sellstrategy = compile(sellstrategy, '<string>', 'exec')
         conn.close()
 
         self.code = None
@@ -84,10 +86,10 @@ class BackTesterStockStg:
                     continue
                 self.index = index
                 self.indexn = h
-                if not self.hold and self.starttime < int(index[8:]) < self.endtime and self.BuyTerm():
-                    self.Buy()
-                elif self.hold and self.starttime < int(index[8:]) < self.endtime and self.SellTerm():
-                    self.Sell()
+                if not self.hold and self.starttime < int(index[8:]) < self.endtime:
+                    self.BuyTerm()
+                elif self.hold and self.starttime < int(index[8:]) < self.endtime:
+                    self.SellTerm()
                 elif self.hold and (h == lasth or int(index[8:]) >= self.endtime > int(self.df.index[h - 1][8:])):
                     self.Sell()
             self.Report(k + 1, tcount)
@@ -141,10 +143,6 @@ class BackTesterStockStg:
         매수잔량2 = self.df['매수잔량2'][self.index]
 
         exec(self.buystrategy, None, locals())
-
-        if 매수:
-            return True
-        return False
 
     def Buy(self):
         if self.df['매도호가1'][self.index] * self.df['매도잔량1'][self.index] >= 10000000:
@@ -205,10 +203,6 @@ class BackTesterStockStg:
         매수잔량2 = self.df['매수잔량2'][self.index]
 
         exec(self.sellstrategy, None, locals())
-
-        if 매도:
-            return True
-        return False
 
     def Sell(self):
         if self.df['매수잔량1'][self.index] >= self.buycount:

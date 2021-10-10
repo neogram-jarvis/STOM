@@ -20,9 +20,11 @@ class BackTesterCoinStg:
 
         conn = sqlite3.connect(DB_COIN_STRETEGY)
         dfs = pd.read_sql('SELECT * FROM buy', conn).set_index('index')
-        self.buystrategy = compile(dfs['전략코드'][buystg_].split('if 매수:')[0], '<string>', 'exec')
+        buystategy = dfs['전략코드'][buystg_].split('if 매수:')[0] + '\nif 매수:\n    self.Buy()'
+        self.buystrategy = compile(buystategy, '<string>', 'exec')
         dfs = pd.read_sql('SELECT * FROM sell', conn).set_index('index')
-        self.sellstrategy = compile(dfs['전략코드'][sellstg_].split('if 매도:')[0], '<string>', 'exec')
+        sellstrategy = dfs['전략코드'][sellstg_].split('if 매도:')[0] + '\nif 매도:\n    self.Sell()'
+        self.sellstrategy = compile(sellstrategy, '<string>', 'exec')
         conn.close()
 
         self.code = None
@@ -57,7 +59,7 @@ class BackTesterCoinStg:
             self.df['고저평균대비등락율'] = (self.df['현재가'] / ((self.df['고가'] + self.df['저가']) / 2) - 1) * 100
             self.df['고저평균대비등락율'] = self.df['고저평균대비등락율'].round(2)
             self.df['체결강도'] = self.df['누적매수량'] / self.df['누적매도량'] * 100
-            self.df['체결강도'] = self.df['체결강도'].round(2)
+            self.df['체결강도'] = self.df['체결강도'].apply(lambda x: 500 if x > 500 else round(x, 2))
             self.df['직전체결강도'] = self.df['체결강도'].shift(1)
             self.df['직전당일거래대금'] = self.df['당일거래대금'].shift(1)
             self.df = self.df.fillna(0)
@@ -84,10 +86,10 @@ class BackTesterCoinStg:
                     continue
                 self.index = index
                 self.indexn = h
-                if not self.hold and self.starttime < int(index[8:]) < self.endtime and self.BuyTerm():
-                    self.Buy()
-                elif self.hold and self.starttime < int(index[8:]) < self.endtime and self.SellTerm():
-                    self.Sell()
+                if not self.hold and self.starttime < int(index[8:]) < self.endtime:
+                    self.BuyTerm()
+                elif self.hold and self.starttime < int(index[8:]) < self.endtime:
+                    self.SellTerm()
                 elif self.hold and (h == lasth or int(index[8:]) >= self.endtime > int(self.df.index[h - 1][8:])):
                     self.Sell()
             self.Report(k + 1, tcount)
@@ -101,7 +103,7 @@ class BackTesterCoinStg:
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
         self.ccond += 1
-        if self.ccond < self.avgtime:
+        if self.ccond < self.avgtime + 1:
             return False
 
         매수 = True
@@ -145,10 +147,6 @@ class BackTesterCoinStg:
 
         exec(self.buystrategy, None, locals())
 
-        if 매수:
-            return True
-        return False
-
     def Buy(self):
         if self.df['매도호가1'][self.index] * self.df['매도잔량1'][self.index] >= 10000000:
             s1hg = self.df['매도호가1'][self.index]
@@ -162,7 +160,7 @@ class BackTesterCoinStg:
             s2jc = int(ng / s2hg)
             self.buycount = s1jr + s2jc
             self.buyprice = round((s1hg * s1jr + s2hg * s2jc) / self.buycount, 2)
-        if self.buycount == 0:
+        if self.buycount < 0.00000001:
             return
         self.hold = True
         self.indexb = self.indexn
@@ -218,10 +216,6 @@ class BackTesterCoinStg:
         매수잔량5 = self.df['매수잔량5'][self.index]
 
         exec(self.sellstrategy, None, locals())
-
-        if 매도:
-            return True
-        return False
 
     def Sell(self):
         if self.df['매수잔량1'][self.index] >= self.buycount:
@@ -348,7 +342,7 @@ class Total:
                 break
 
         if len(df_back) > 0:
-            tc = df_back['거래횟수'].sum()
+            tc = df_back['익절'].sum() + df_back['손절'].sum()
             if tc != 0:
                 pc = df_back['익절'].sum()
                 mc = df_back['손절'].sum()

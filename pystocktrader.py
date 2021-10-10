@@ -634,7 +634,6 @@ class Window(QtWidgets.QMainWindow):
     def ButtonClicked_27(self):
         if self.backtester_proc is not None and self.backtester_proc.poll() != 0:
             QtWidgets.QMessageBox.critical(self, '오류 알림', '현재 백테스터가 실행중입니다.\n중복 실행할 수 없습니다.\n')
-            return
         else:
             testperiod = self.ssb_lineEdit_01.text()
             totaltime = self.ssb_lineEdit_02.text()
@@ -874,7 +873,6 @@ class Window(QtWidgets.QMainWindow):
     def ButtonClicked_57(self):
         if self.backtester_proc is not None and self.backtester_proc.poll() != 0:
             QtWidgets.QMessageBox.critical(self, '오류 알림', '현재 백테스터가 실행중입니다.\n중복 실행할 수 없습니다.\n')
-            return
         else:
             testperiod = self.csb_lineEdit_01.text()
             totaltime = self.csb_lineEdit_02.text()
