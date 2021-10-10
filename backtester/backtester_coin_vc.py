@@ -102,7 +102,7 @@ class BackTesterCoinVc:
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
         self.ccond += 1
-        if self.ccond < self.avg_time:
+        if self.ccond < self.avg_time + 1:
             return False
 
         # 여기에 본인의 전략을 작성하십시오.

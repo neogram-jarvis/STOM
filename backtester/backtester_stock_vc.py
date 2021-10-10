@@ -109,7 +109,7 @@ class BackTesterStockVc:
                 self.ccond += 1
         except KeyError:
             return False
-        if self.ccond < self.avg_time:
+        if self.ccond < self.avg_time + 1:
             return False
 
         # 여기에 본인의 전략을 작성하십시오.
