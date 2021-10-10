@@ -352,7 +352,7 @@ def SetUI(self):
     self.ssb_pushButton_09 = setPushbutton('호가총잔량비교', box=self.ss_tab, click=self.ButtonClicked_23)
     self.ssb_pushButton_10 = setPushbutton('1호가잔량비교', box=self.ss_tab, click=self.ButtonClicked_24)
     self.ssb_pushButton_11 = setPushbutton('매수시그널', box=self.ss_tab, click=self.ButtonClicked_25)
-    self.ssb_pushButton_12 = setPushbutton('매수전략 중지하기', box=self.ss_tab, click=self.ButtonClicked_26, color=True)
+    self.ssb_pushButton_12 = setPushbutton('매수전략 중지', box=self.ss_tab, click=self.ButtonClicked_26, color=True)
 
     text = '백테기간                      총시간(초)                      평균틱수'
     self.ssb_labellll_01 = QtWidgets.QLabel(text, self.ss_tab)
