@@ -70,7 +70,8 @@ class StrategyStock:
                     self.BuyStrategy(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8],
                                      data[9], data[10], data[11], data[12], data[13], data[14], data[15], data[16],
                                      data[17], data[18], data[19], data[20], data[21], data[22], data[23], data[24],
-                                     data[25])
+                                     data[25], data[26], data[27], data[28], data[29], data[30], data[31], data[32],
+                                     data[33], data[34], data[35], data[36], data[37])
                 elif len(data) == 6:
                     self.SellStrategy(data[0], data[1], data[2], data[3], data[4], data[5])
             elif data == '잔략프로세스종료':
@@ -113,9 +114,11 @@ class StrategyStock:
         elif gubun == '매도전략중지':
             self.sellstrategy = None
 
-    def BuyStrategy(self, 종목코드, 현재가, 시가, 고가, 저가, 등락율, 당일거래대금, 체결강도, 초당매수수량, 초당매도수량,
-                    VI해제시간, VI아래5호가, 매도총잔량, 매수총잔량, 매도호가2, 매도호가1, 매수호가1, 매수호가2,
-                    매도잔량2, 매도잔량1, 매수잔량1, 매수잔량2, 체결시간, 틱수신시간, 종목명, 잔고종목):
+    def BuyStrategy(self, 현재가, 시가, 고가, 저가, 등락율, 당일거래대금, 체결강도,
+                    초당매수수량, 초당매도수량, VI해제시간, VI아래5호가, 매도총잔량, 매수총잔량,
+                    매도호가5, 매도호가4, 매도호가3, 매도호가2, 매도호가1, 매수호가1, 매수호가2, 매수호가3, 매수호가4, 매수호가5,
+                    매도잔량5, 매도잔량4, 매도잔량3, 매도잔량2, 매도잔량1, 매수잔량1, 매수잔량2, 매수잔량3, 매수잔량4, 매수잔량5,
+                    종목코드, 체결시간, 틱수신시간, 종목명, 잔고종목):
         if 종목코드 not in self.dict_gsjm.keys():
             return
 

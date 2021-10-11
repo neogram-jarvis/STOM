@@ -419,18 +419,32 @@ class ReceiverKiwoom:
             try:
                 tsjr = int(self.GetCommRealData(code, 121))
                 tbjr = int(self.GetCommRealData(code, 125))
+                s5hg = abs(int(self.GetCommRealData(code, 45)))
+                s4hg = abs(int(self.GetCommRealData(code, 44)))
+                s3hg = abs(int(self.GetCommRealData(code, 43)))
                 s2hg = abs(int(self.GetCommRealData(code, 42)))
                 s1hg = abs(int(self.GetCommRealData(code, 41)))
                 b1hg = abs(int(self.GetCommRealData(code, 51)))
                 b2hg = abs(int(self.GetCommRealData(code, 52)))
+                b3hg = abs(int(self.GetCommRealData(code, 53)))
+                b4hg = abs(int(self.GetCommRealData(code, 54)))
+                b5hg = abs(int(self.GetCommRealData(code, 55)))
+                s5jr = int(self.GetCommRealData(code, 65))
+                s4jr = int(self.GetCommRealData(code, 64))
+                s3jr = int(self.GetCommRealData(code, 63))
                 s2jr = int(self.GetCommRealData(code, 62))
                 s1jr = int(self.GetCommRealData(code, 61))
                 b1jr = int(self.GetCommRealData(code, 71))
                 b2jr = int(self.GetCommRealData(code, 72))
+                b3jr = int(self.GetCommRealData(code, 73))
+                b4jr = int(self.GetCommRealData(code, 74))
+                b5jr = int(self.GetCommRealData(code, 75))
             except Exception as e:
                 self.windowQ.put([ui_num['S단순텍스트'], f'OnReceiveRealData 주식호가잔량 {e}'])
             else:
-                self.dict_hoga[code] = [tsjr, tbjr, s2hg, s1hg, b1hg, b2hg, s2jr, s1jr, b1jr, b2jr]
+                self.dict_hoga[code] = [tsjr, tbjr,
+                                        s5hg, s4hg, s3hg, s2hg, s1hg, b1hg, b2hg, b3hg, b4hg, b5hg,
+                                        s5jr, s4jr, s3jr, s2jr, s1jr, b1jr, b2jr, b3jr, b4jr, b5jr]
 
     def InsertViPrice(self, code, o):
         uvi, dvi, vid5price = self.GetVIPrice(code, o)
@@ -478,7 +492,7 @@ class ReceiverKiwoom:
             uvi, dvi, vid5price = self.GetVIPrice(code, key)
             self.dict_vipr[code] = [True, timedelta_sec(5), uvi, dvi, vid5price]
 
-    def UpdateTickData(self, code, name, c, o, h, low, per, dm, ch, bids, asks, t, receivetime):
+    def UpdateTickData(self, name, c, o, h, low, per, dm, ch, bids, asks, code, t, receivetime):
         dt = self.str_tday + t[:4]
         if code not in self.dict_cdjm.keys():
             columns = ['1분누적거래대금', '1분전당일거래대금']
@@ -493,13 +507,12 @@ class ReceiverKiwoom:
 
         vitime = self.dict_vipr[code][1]
         vid5price = self.dict_vipr[code][4]
-        data = [code, c, o, h, low, per, dm, ch, bids, asks, vitime, vid5price]
-        data += self.dict_hoga[code] + [t, receivetime]
+        data = [c, o, h, low, per, dm, ch, bids, asks, vitime, vid5price]
+        data += self.dict_hoga[code] + [code, dt, receivetime]
 
         if DICT_SET['키움트레이더'] and code in self.dict_gsjm.keys():
             injango = code in self.list_jang
-            data += [name, injango]
-            self.sstgQ.put(data)
+            self.sstgQ.put(data + [name, injango])
             if injango:
                 self.stockQ.put([code, name, c])
 
