@@ -76,7 +76,7 @@ class WebsTicker(QThread):
                     tasks = data['acc_ask_volume']
                     dt = data['trade_date'] + t
                     dict_tsbc[code] = [t, 0, 0]
-                    data = [code, c, o, h, low, per, dm, bids, asks, tbids, tasks, dt, now()]
+                    data = [c, o, h, low, per, dm, bids, asks, tbids, tasks, code, dt, now()]
                     self.tick5Q.put(data)
                     if DICT_SET['업비트트레이더']:
                         injango = code in self.list_jang

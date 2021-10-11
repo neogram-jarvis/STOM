@@ -31,15 +31,17 @@ class CollectorUpbit:
                 self.UpdateOrderbook(data)
 
     def UpdateTickData(self, data):
-        code = data[0]
+        code = data[-3]
+        dt = data[-2]
+        receivetime = data[-1]
+
         if code not in self.dict_orderbook.keys():
             return
 
-        dt = data[-2]
-        receivetime = data[-1]
         data.remove(code)
         data.remove(dt)
         data.remove(receivetime)
+
         dt = strf_time('%Y%m%d%H%M%S', timedelta_hour(9, strp_time('%Y%m%d%H%M%S', dt)))
         data += self.dict_orderbook[code]
 
