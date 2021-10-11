@@ -14,15 +14,16 @@ END_TIME = 100000
 
 
 class BackTesterStockVc:
-    def __init__(self, q_, code_list_, num_, df_mt_, high):
+    def __init__(self, q_, code_list_, num_, df1_, df_mt_, high):
         self.q = q_
         self.code_list = code_list_
+        self.df_name = df1_
         self.df_mt = df_mt_
         self.high = high
 
         if type(num_[0]) == list:
             self.gap_ch = num_[0][0]
-            self.avg_time = num_[1][0]
+            self.avgtime = num_[1][0]
             self.gap_sm = num_[2][0]
             self.ch_low = num_[3][0]
             self.dm_low = num_[4][0]
@@ -31,7 +32,7 @@ class BackTesterStockVc:
             self.cs_per = num_[7][0]
         else:
             self.gap_ch = num_[0]
-            self.avg_time = num_[1]
+            self.avgtime = num_[1]
             self.gap_sm = num_[2]
             self.ch_low = num_[3]
             self.dm_low = num_[4]
@@ -53,6 +54,7 @@ class BackTesterStockVc:
         self.buycount = 0
         self.buyprice = 0
         self.sellprice = 0
+        self.buytime = None
         self.index = 0
         self.indexb = 0
 
@@ -78,9 +80,9 @@ class BackTesterStockVc:
             self.df['초당거래대금'] = self.df['당일거래대금'] - self.df['직전당일거래대금']
             self.df['직전초당거래대금'] = self.df['초당거래대금'].shift(1)
             self.df = self.df.fillna(0)
-            self.df['초당거래대금평균'] = self.df['직전초당거래대금'].rolling(window=self.avg_time).mean()
-            self.df['체결강도평균'] = self.df['직전체결강도'].rolling(window=self.avg_time).mean()
-            self.df['최고체결강도'] = self.df['직전체결강도'].rolling(window=self.avg_time).max()
+            self.df['초당거래대금평균'] = self.df['직전초당거래대금'].rolling(window=self.avgtime).mean()
+            self.df['체결강도평균'] = self.df['직전체결강도'].rolling(window=self.avgtime).mean()
+            self.df['최고체결강도'] = self.df['직전체결강도'].rolling(window=self.avgtime).max()
             self.df = self.df.fillna(0)
             self.totalcount = 0
             self.totalcount_p = 0
@@ -98,16 +100,22 @@ class BackTesterStockVc:
                     continue
                 self.index = index
                 self.indexn = h
-                if not self.hold and START_TIME < int(index[8:]) < END_TIME and self.BuyTerm():
-                    self.Buy()
-                elif self.hold and START_TIME < int(index[8:]) < END_TIME and self.SellTerm():
-                    self.Sell()
+                if not self.hold and START_TIME < int(index[8:]) < END_TIME:
+                    self.BuyTerm()
+                elif self.hold and START_TIME < int(index[8:]) < END_TIME:
+                    self.SellTerm()
                 elif self.hold and (h == lasth or int(index[8:]) >= END_TIME > int(self.df.index[h - 1][8:])):
-                    self.Sell()
+                    self.LastSell()
             self.Report(k + 1, tcount)
         conn.close()
 
     def BuyTerm(self):
+        # noinspection PyShadowingNames
+        def now():
+            return strp_time('%Y%m%d%H%M%S', self.index)
+
+        if type(self.df['현재가'][self.index]) == pd.Series:
+            return False
         try:
             if self.code not in self.df_mt['거래대금순위'][self.index]:
                 self.ccond = 0
@@ -115,53 +123,164 @@ class BackTesterStockVc:
                 self.ccond += 1
         except KeyError:
             return False
-        if self.ccond < self.avg_time + 1:
+        if self.ccond < self.avgtime + 1:
             return False
+
+        매수 = True
+        종목명 = self.df_name['종목명'][self.code]
+        종목코드 = self.code
+        현재가 = self.df['현재가'][self.index]
+        시가 = self.df['시가'][self.index]
+        고가 = self.df['고가'][self.index]
+        저가 = self.df['저가'][self.index]
+        등락율 = self.df['등락율'][self.index]
+        고저평균대비등락율 = self.df['고저평균대비등락율'][self.index]
+        당일거래대금 = self.df['당일거래대금'][self.index]
+        VI해제시간 = strp_time('%Y%m%d%H%M%S', self.df['VI해제시간'][self.index])
+        VI아래5호가 = self.df['VI아래5호가'][self.index]
+        체결강도 = self.df['체결강도'][self.index]
+        체결강도평균 = self.df['체결강도평균'][self.index]
+        최고체결강도 = self.df['최고체결강도'][self.index]
+        초당거래대금 = self.df['초당거래대금'][self.index]
+        초당거래대금평균 = self.df['초당거래대금평균'][self.index]
+        초당매수수량 = self.df['초당매수수량'][self.index]
+        초당매도수량 = self.df['초당매도수량'][self.index]
+        매도총잔량 = self.df['매도총잔량'][self.index]
+        매수총잔량 = self.df['매수총잔량'][self.index]
+        매도호가5 = self.df['매도호가5'][self.index]
+        매도호가4 = self.df['매도호가4'][self.index]
+        매도호가3 = self.df['매도호가3'][self.index]
+        매도호가2 = self.df['매도호가2'][self.index]
+        매도호가1 = self.df['매도호가1'][self.index]
+        매수호가1 = self.df['매수호가1'][self.index]
+        매수호가2 = self.df['매수호가2'][self.index]
+        매수호가3 = self.df['매수호가3'][self.index]
+        매수호가4 = self.df['매수호가4'][self.index]
+        매수호가5 = self.df['매수호가5'][self.index]
+        매도잔량5 = self.df['매도잔량5'][self.index]
+        매도잔량4 = self.df['매도잔량4'][self.index]
+        매도잔량3 = self.df['매도잔량3'][self.index]
+        매도잔량2 = self.df['매도잔량2'][self.index]
+        매도잔량1 = self.df['매도잔량1'][self.index]
+        매수잔량1 = self.df['매수잔량1'][self.index]
+        매수잔량2 = self.df['매수잔량2'][self.index]
+        매수잔량3 = self.df['매수잔량3'][self.index]
+        매수잔량4 = self.df['매수잔량4'][self.index]
+        매수잔량5 = self.df['매수잔량5'][self.index]
 
         # 여기에 본인의 전략을 작성하십시오.
 
-        return True
-
     def Buy(self):
-        if self.df['매도호가1'][self.index] * self.df['매도잔량1'][self.index] >= BATTING:
-            s1hg = self.df['매도호가1'][self.index]
-            self.buycount = int(BATTING / s1hg)
-            self.buyprice = s1hg
-        else:
-            s1hg = self.df['매도호가1'][self.index]
-            s1jr = self.df['매도잔량1'][self.index]
-            s2hg = self.df['매도호가2'][self.index]
-            ng = BATTING - s1hg * s1jr
-            s2jc = int(ng / s2hg)
-            self.buycount = s1jr + s2jc
-            self.buyprice = round((s1hg * s1jr + s2hg * s2jc) / self.buycount, 2)
-        if self.buycount == 0:
-            return
-        self.hold = True
-        self.indexb = self.indexn
-        self.csell = 0
+        매도호가1 = self.df['매도호가1'][self.index]
+        매도잔량1 = self.df['매도잔량1'][self.index]
+        현재가 = self.df['현재가'][self.index]
+        매수수량 = round(10000000 / 현재가, 8)
+        if 매수수량 > 0.00000001:
+            남은수량 = 매수수량
+            직전남은수량 = 매수수량
+            매수금액 = 0
+            호가정보 = {매도호가1: 매도잔량1}
+            for 매도호가, 매도잔량 in 호가정보.items():
+                남은수량 -= 매도잔량
+                if 남은수량 <= 0:
+                    매수금액 += 매도호가 * 직전남은수량
+                    break
+                else:
+                    매수금액 += 매도호가 * 매도잔량
+                    직전남은수량 = 남은수량
+            if 남은수량 <= 0:
+                예상체결가 = round(매수금액 / 매수수량, 2)
+                self.buyprice = 예상체결가
+                self.buycount = 매수수량
+                self.hold = True
+                self.indexb = self.indexn
+                self.buytime = strp_time('%Y%m%d%H%M%S', self.index)
 
     def SellTerm(self):
-        if self.df['등락율'][self.index] > 29:
-            return True
+        # noinspection PyShadowingNames
+        def now():
+            return strp_time('%Y%m%d%H%M%S', self.index)
+
+        if type(self.df['현재가'][self.index]) == pd.Series:
+            return False
 
         bg = self.buycount * self.buyprice
         cg = self.buycount * self.df['현재가'][self.index]
-        eyun, per = self.GetEyunPer(bg, cg)
+        eyun, 수익률 = self.GetEyunPer(bg, cg)
+
+        매도 = False
+        종목명 = self.df_name['종목명'][self.code]
+        종목코드 = self.code
+        보유수량 = self.buycount
+        매수시간 = self.buytime
+        현재가 = self.df['현재가'][self.index]
+        등락율 = self.df['등락율'][self.index]
+        고저평균대비등락율 = self.df['고저평균대비등락율'][self.index]
+        VI아래5호가 = self.df['VI아래5호가'][self.index]
+        체결강도 = self.df['체결강도'][self.index]
+        체결강도평균 = self.df['체결강도평균'][self.index]
+        최고체결강도 = self.df['최고체결강도'][self.index]
+        초당거래대금 = self.df['초당거래대금'][self.index]
+        초당거래대금평균 = self.df['초당거래대금평균'][self.index]
+        초당매수수량 = self.df['초당매수수량'][self.index]
+        초당매도수량 = self.df['초당매도수량'][self.index]
+        매도총잔량 = self.df['매도총잔량'][self.index]
+        매수총잔량 = self.df['매수총잔량'][self.index]
+        매도호가5 = self.df['매도호가5'][self.index]
+        매도호가4 = self.df['매도호가4'][self.index]
+        매도호가3 = self.df['매도호가3'][self.index]
+        매도호가2 = self.df['매도호가2'][self.index]
+        매도호가1 = self.df['매도호가1'][self.index]
+        매수호가1 = self.df['매수호가1'][self.index]
+        매수호가2 = self.df['매수호가2'][self.index]
+        매수호가3 = self.df['매수호가3'][self.index]
+        매수호가4 = self.df['매수호가4'][self.index]
+        매수호가5 = self.df['매수호가5'][self.index]
+        매도잔량5 = self.df['매도잔량5'][self.index]
+        매도잔량4 = self.df['매도잔량4'][self.index]
+        매도잔량3 = self.df['매도잔량3'][self.index]
+        매도잔량2 = self.df['매도잔량2'][self.index]
+        매도잔량1 = self.df['매도잔량1'][self.index]
+        매수잔량1 = self.df['매수잔량1'][self.index]
+        매수잔량2 = self.df['매수잔량2'][self.index]
+        매수잔량3 = self.df['매수잔량3'][self.index]
+        매수잔량4 = self.df['매수잔량4'][self.index]
+        매수잔량5 = self.df['매수잔량5'][self.index]
 
         # 여기에 본인의 전략을 작성하십시오.
 
-        return False
-
     def Sell(self):
-        if self.df['매수잔량1'][self.index] >= self.buycount:
-            self.sellprice = self.df['매수호가1'][self.index]
-        else:
-            b1hg = self.df['매수호가1'][self.index]
-            b1jr = self.df['매수잔량1'][self.index]
-            b2hg = self.df['매수호가2'][self.index]
-            nc = self.buycount - b1jr
-            self.sellprice = round((b1hg * b1jr + b2hg * nc) / self.buycount, 2)
+        매수호가1 = self.df['매수호가1'][self.index]
+        매수호가2 = self.df['매수호가2'][self.index]
+        매수호가3 = self.df['매수호가3'][self.index]
+        매수호가4 = self.df['매수호가4'][self.index]
+        매수호가5 = self.df['매수호가5'][self.index]
+        매수잔량1 = self.df['매수잔량1'][self.index]
+        매수잔량2 = self.df['매수잔량2'][self.index]
+        매수잔량3 = self.df['매수잔량3'][self.index]
+        매수잔량4 = self.df['매수잔량4'][self.index]
+        매수잔량5 = self.df['매수잔량5'][self.index]
+        남은수량 = self.buyprice
+        직전남은수량 = self.buyprice
+        매도금액 = 0
+        호가정보 = {매수호가1: 매수잔량1, 매수호가2: 매수잔량2, 매수호가3: 매수잔량3, 매수호가4: 매수잔량4, 매수호가5: 매수잔량5}
+        for 매수호가, 매수잔량 in 호가정보.items():
+            남은수량 -= 매수잔량
+            if 남은수량 <= 0:
+                매도금액 += 매수호가 * 직전남은수량
+                break
+            else:
+                매도금액 += 매수호가 * 매수잔량
+                직전남은수량 = 남은수량
+        if 남은수량 <= 0:
+            예상체결가 = round(매도금액 / self.buyprice, 2)
+            self.sellprice = 예상체결가
+            self.hold = False
+            self.CalculationEyun()
+            self.indexb = 0
+
+    def LastSell(self):
+        self.sellprice = self.df['현재가'][self.index]
         self.hold = False
         self.CalculationEyun()
         self.indexb = 0
@@ -375,7 +494,7 @@ if __name__ == "__main__":
             workcount = int(last / 6) + 1
             for j in range(0, last, workcount):
                 code_list = table_list[j:j + workcount]
-                p = Process(target=BackTesterStockVc, args=(q, code_list, num, df3, False))
+                p = Process(target=BackTesterStockVc, args=(q, code_list, num, df1, df3, False))
                 procs.append(p)
                 p.start()
             for p in procs:
@@ -408,7 +527,7 @@ if __name__ == "__main__":
         workcount = int(last / 6) + 1
         for j in range(0, last, workcount):
             code_list = table_list[j:j + workcount]
-            p = Process(target=BackTesterStockVc, args=(q, code_list, num, df3, False))
+            p = Process(target=BackTesterStockVc, args=(q, code_list, num, df1, df3, False))
             procs.append(p)
             p.start()
         for p in procs:
@@ -446,7 +565,7 @@ if __name__ == "__main__":
     workcount = int(last / 6) + 1
     for j in range(0, last, workcount):
         db_list = table_list[j:j + workcount]
-        p = Process(target=BackTesterStockVc, args=(q, db_list, num, df3, True))
+        p = Process(target=BackTesterStockVc, args=(q, db_list, num, df1, df3, True))
         procs.append(p)
         p.start()
     for p in procs:

@@ -131,76 +131,110 @@ def BuyStrategy(self, *args)
 매수(True), 종목명(str), 종목코드(str), 현재가(int), 시가(int), 고가(int), 저가(int), 등락율(float), 고저평균대비등락율(float),
 당일거래대금(int), 초당거래대금(int), 초당거래대금평균(int), 체결강도(float), 체결강도평균(float), 최고체결강도(float),
 VI해제시간(datetime), VI아래5호가(int), 초당매수수량(int), 초당매도수량(int), 매도총잔량(int), 매수총잔량(int),
-매도호가2(int), 매도호가1(int), 매수호가1(int), 매수호가2(int), 매도잔량2(int), 매도잔량1(int), 매수잔량1(int), 매수잔량2(int)
+매도호가5(int), 매도호가4(int), 매도호가3(int), 매도호가2(int), 매도호가1(int), 매수호가1(int), 매수호가2(int), 매수호가3(int), 매수호가4(int), 매수호가5(int),
+매도잔량5(int), 매도잔량4(int), 매도잔량3(int), 매도잔량2(int), 매도잔량1(int), 매수잔량1(int), 매수잔량2(int), 매수잔량3(int), 매수잔량4(int), 매수잔량5(int)
 """'''
 stock_sell_var = '''"""
 def SellStrategy(self, *args)
 매도(False), 종목명(str), 종목코드(str), 수익률(float), 보유수량(int), 매수시간(datetime), 현재가(int), 등락율(float), 고저평균대비등락율(float),
 체결강도(float), 체결강도평균(float), 최고체결강도(float), 초당거래대금(int), 초당거래대금평균(int), VI아래5호가(int), 매도총잔량(int), 매수총잔량(int),
-매도호가2(int), 매도호가1(int), 매수호가1(int), 매수호가2(int), 매도잔량2(int), 매도잔량1(int), 매수잔량1(int), 매수잔량2(int)
+매도호가5(int), 매도호가4(int), 매도호가3(int), 매도호가2(int), 매도호가1(int), 매수호가1(int), 매수호가2(int), 매수호가3(int), 매수호가4(int), 매수호가5(int),
+매도잔량5(int), 매도잔량4(int), 매도잔량3(int), 매도잔량2(int), 매도잔량1(int), 매수잔량1(int), 매수잔량2(int), 매수잔량3(int), 매수잔량4(int), 매수잔량5(int)
 """'''
 stock_buy_signal = '''
 if 매수:
     매수수량 = int(self.int_tujagm / 현재가)
     if 매수수량 > 0:
-        if 매수수량 <= 매도잔량1:
-            예상체결가 = 매도호가1
-        else:
-            매수수량1 = 매도잔량1
-            남은매수수량 = 매수수량 - 매수수량1
-            예상체결가 = round((매도호가1 * 매수수량1 + 매도호가2 * 남은매수수량) / 매수수량, 2)
-        self.list_buy.append(종목코드)
-        self.stockQ.put(['매수', 종목코드, 종목명, 예상체결가, 매수수량])'''
+        남은수량 = 매수수량
+        직전남은수량 = 매수수량
+        매수금액 = 0
+        # 호가정보 딕셔너리에 넣은 잔량의 합이 매수수량보다 클 경우에만 매수주문됩니다.
+        # 기본 호가정보의 수를 변경할 경우 반드시 백테스터 self.Buy() 내에서도 호가정보를 수정해야 백테스팅이 올바르게 진행됩니다.
+        호가정보 = {매도호가1: 매도잔량1}
+        for 매도호가, 매도잔량 in 호가정보.items():
+            남은수량 -= 매도잔량
+            if 남은수량 <= 0:
+                매수금액 += 매도호가 * 직전남은수량
+                break
+            else:
+                매수금액 += 매도호가 * 매도잔량
+                직전남은수량 = 남은수량
+        if 남은수량 <= 0:
+            예상체결가 = round(매수금액 / 매수수량, 2)
+            self.list_buy.append(종목코드)
+            self.stockQ.put(['매수', 종목코드, 종목명, 예상체결가, 매수수량])'''
 stock_sell_signal = '''
 if 매도:
-    if 보유수량 <= 매수잔량1:
-        예상체결가 = 매수호가1
-    else:
-        보유수량1 = 매수잔량1
-        남은보유수량 = 보유수량 - 보유수량1
-        예상체결가 = round((매수호가1 * 보유수량1 + 매수호가2 * 남은보유수량) / 보유수량, 2)
-    self.list_sell.append(종목코드)
-    self.stockQ.put(['매도', 종목코드, 종목명, 예상체결가, 보유수량])'''
+    남은수량 = 보유수량
+    직전남은수량 = 보유수량
+    매도금액 = 0
+    호가정보 = {매수호가1: 매수잔량1, 매수호가2: 매수잔량2, 매수호가3: 매수잔량3, 매수호가4: 매수잔량4, 매수호가5: 매수잔량5}
+    for 매수호가, 매수잔량 in 호가정보.items():
+        남은수량 -= 매수잔량
+        if 남은수량 <= 0:
+            매도금액 += 매수호가 * 직전남은수량
+            break
+        else:
+            매도금액 += 매수호가 * 매수잔량
+            직전남은수량 = 남은수량
+    if 남은수량 <= 0:
+        예상체결가 = round(매도금액 / 보유수량, 2)
+        self.list_sell.append(종목코드)
+        self.stockQ.put(['매도', 종목코드, 종목명, 예상체결가, 보유수량])'''
 coin_buy_var = '''"""
 def BuyStrategy(self, *args)
 매수(True), 종목명(str), 현재가(int), 시가(int), 고가(int), 저가(int), 등락율(float), 고저평균대비등락율(float), 당일거래대금(int), 초당거래대금(int),
 초당거래대금평균(int), 체결강도(float), 체결강도평균(float), 최고체결강도(float), 초당매수수량(int), 초당매도수량(int), 매도총잔량(float), 매수총잔량(float),
-매도호가5(float), 매도호가4(float), 매도호가3(float), 매도호가2(float), 매도호가1(float),
-매수호가1(float), 매수호가2(float), 매수호가3(float), 매수호가4(float), 매수호가5(float),
-매도잔량5(float), 매도잔량4(float), 매도잔량3(float), 매도잔량2(float), 매도잔량1(float),
-매수잔량1(float), 매수잔량2(float), 매수잔량3(float), 매수잔량4(float), 매수잔량5(float)
+매도호가5(float), 매도호가4(float), 매도호가3(float), 매도호가2(float), 매도호가1(float), 매수호가1(float), 매수호가2(float), 매수호가3(float), 매수호가4(float), 매수호가5(float),
+매도잔량5(float), 매도잔량4(float), 매도잔량3(float), 매도잔량2(float), 매도잔량1(float), 매수잔량1(float), 매수잔량2(float), 매수잔량3(float), 매수잔량4(float), 매수잔량5(float)
 """'''
 coin_sell_var = '''"""
 def SellStrategy(self, *args)
 매도(False), 종목명(str), 수익률(float), 보유수량(float), 매수시간(datetime), 현재가(float), 등락율(float), 고저평균대비등락율(float),
 체결강도(float), 체결강도평균(float), 최고체결강도(float), 초당거래대금(int), 초당거래대금평균(int), 매도총잔량(float), 매수총잔량(float),
-매도호가5(float), 매도호가4(float), 매도호가3(float), 매도호가2(float), 매도호가1(float),
-매수호가1(float), 매수호가2(float), 매수호가3(float), 매수호가4(float), 매수호가5(float),
-매도잔량5(float), 매도잔량4(float), 매도잔량3(float), 매도잔량2(float), 매도잔량1(float),
-매수잔량1(float), 매수잔량2(float), 매수잔량3(float), 매수잔량4(float), 매수잔량5(float)
+매도호가5(float), 매도호가4(float), 매도호가3(float), 매도호가2(float), 매도호가1(float), 매수호가1(float), 매수호가2(float), 매수호가3(float), 매수호가4(float), 매수호가5(float),
+매도잔량5(float), 매도잔량4(float), 매도잔량3(float), 매도잔량2(float), 매도잔량1(float), 매수잔량1(float), 매수잔량2(float), 매수잔량3(float), 매수잔량4(float), 매수잔량5(float)
 """'''
 coin_buy_signal = '''
 if 매수:
     매수수량 = round(self.int_tujagm / 현재가, 8)
     if 매수수량 > 0.00000001:
-        if 매수수량 <= 매도잔량1:
-            예상체결가 = 매도호가1
-        else:
-            매수수량1 = 매도잔량1
-            남은매수수량 = 매수수량 - 매수수량1
-            예상체결가 = round((매도호가1 * 매수수량1 + 매도호가2 * 남은매수수량) / 매수수량, 2)
-        self.list_buy.append(종목명)
-        self.coinQ.put(['매수', 종목명, 예상체결가, 매수수량])'''
+        남은수량 = 매수수량
+        직전남은수량 = 매수수량
+        매수금액 = 0
+        # 호가정보 딕셔너리에 넣은 잔량의 합이 매수수량보다 클 경우에만 매수주문됩니다.
+        # 기본 호가정보의 수를 변경할 경우 반드시 백테스터 self.Buy() 내에서도 호가정보를 수정해야 백테스팅이 올바르게 진행됩니다.
+        호가정보 = {매도호가1: 매도잔량1, 매도호가2: 매도잔량2}
+        for 매도호가, 매도잔량 in 호가정보.items():
+            남은수량 -= 매도잔량
+            if 남은수량 <= 0:
+                매수금액 += 매도호가 * 직전남은수량
+                break
+            else:
+                매수금액 += 매도호가 * 매도잔량
+                직전남은수량 = 남은수량
+        if 남은수량 <= 0:
+            예상체결가 = round(매수금액 / 매수수량, 2)
+            self.list_buy.append(종목명)
+            self.coinQ.put(['매수', 종목명, 예상체결가, 매수수량])'''
 coin_sell_signal = '''
 if 매도:
-    if 보유수량 <= 매수잔량1:
-        예상체결가 = 매수호가1
-    else:
-        보유수량1 = 매수잔량1
-        남은보유수량 = 보유수량 - 보유수량1
-        예상체결가 = round((매수호가1 * 보유수량1 + 매수호가2 * 남은보유수량) / 보유수량, 2)
-    self.list_sell.append(종목명)
-    self.coinQ.put(['매도', 종목명, 예상체결가, 보유수량])'''
+    남은수량 = 보유수량
+    직전남은수량 = 보유수량
+    매도금액 = 0
+    호가정보 = {매수호가1: 매수잔량1, 매수호가2: 매수잔량2, 매수호가3: 매수잔량3, 매수호가4: 매수잔량4, 매수호가5: 매수잔량5}
+    for 매수호가, 매수잔량 in 호가정보.items():
+        남은수량 -= 매수잔량
+        if 남은수량 <= 0:
+            매도금액 += 매수호가 * 직전남은수량
+            break
+        else:
+            매도금액 += 매수호가 * 매수잔량
+            직전남은수량 = 남은수량
+    if 남은수량 <= 0:
+        예상체결가 = round(매도금액 / 보유수량, 2)
+        self.list_sell.append(종목명)
+        self.coinQ.put(['매도', 종목명, 예상체결가, 보유수량])'''
 
 stock_buy1 = '''if 고저평균대비등락율 < 0:\n    매수 = False'''
 stock_buy2 = '''if 체결강도 < 체결강도평균 + 5:\n    매수 = False'''
