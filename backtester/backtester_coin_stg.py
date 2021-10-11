@@ -8,9 +8,10 @@ from utility.setting import *
 
 
 class BackTesterCoinStg:
-    def __init__(self, q_, code_list_, var_, buystg_, sellstg_):
+    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_):
         self.q = q_
         self.code_list = code_list_
+        self.df_mt = df1_
 
         self.testperiod = var_[0]
         self.totaltime = var_[1]
@@ -102,7 +103,13 @@ class BackTesterCoinStg:
 
         if type(self.df['현재가'][self.index]) == pd.Series:
             return False
-        self.ccond += 1
+        try:
+            if self.code not in self.df_mt['거래대금순위'][self.index]:
+                self.ccond = 0
+            else:
+                self.ccond += 1
+        except KeyError:
+            return False
         if self.ccond < self.avgtime + 1:
             return False
 
@@ -413,14 +420,16 @@ if __name__ == "__main__":
 
     con = sqlite3.connect(DB_COIN_TICK)
     df = pd.read_sql("SELECT name FROM sqlite_master WHERE TYPE = 'table'", con)
+    df1 = pd.read_sql('SELECT * FROM moneytop', con).set_index('index')
     con.close()
+
+    table_list = list(df['name'].values)
+    table_list.remove('moneytop')
+    last = len(table_list)
 
     q = Queue()
 
-    if len(df) > 0:
-        table_list = list(df['name'].values)
-        last = len(table_list)
-
+    if len(table_list) > 0:
         testperiod = int(sys.argv[1])
         totaltime = int(sys.argv[2])
         avgtime = int(sys.argv[3])
@@ -437,7 +446,7 @@ if __name__ == "__main__":
         workcount = int(last / int(sys.argv[6])) + 1
         for j in range(0, last, workcount):
             code_list = table_list[j:j + workcount]
-            p = Process(target=BackTesterCoinStg, args=(q, code_list, var, buystg, sellstg))
+            p = Process(target=BackTesterCoinStg, args=(q, code_list, var, buystg, sellstg, df1))
             procs.append(p)
             p.start()
         for p in procs:

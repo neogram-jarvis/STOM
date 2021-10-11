@@ -8,11 +8,11 @@ from utility.setting import *
 
 
 class BackTesterStockStg:
-    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df3_):
+    def __init__(self, q_, code_list_, var_, buystg_, sellstg_, df1_, df2_):
         self.q = q_
         self.code_list = code_list_
         self.df_name = df1_
-        self.df_mt = df3_
+        self.df_mt = df2_
 
         self.testperiod = var_[0]
         self.totaltime = var_[1]
@@ -421,10 +421,11 @@ if __name__ == "__main__":
     start = datetime.datetime.now()
 
     con = sqlite3.connect(DB_STOCK_TICK)
+    df = pd.read_sql("SELECT name FROM sqlite_master WHERE TYPE = 'table'", con)
     df1 = pd.read_sql('SELECT * FROM codename', con).set_index('index')
-    df2 = pd.read_sql("SELECT name FROM sqlite_master WHERE TYPE = 'table'", con)
-    df3 = pd.read_sql('SELECT * FROM moneytop', con).set_index('index')
+    df2 = pd.read_sql('SELECT * FROM moneytop', con).set_index('index')
     con.close()
+
     table_list = list(df2['name'].values)
     table_list.remove('moneytop')
     table_list.remove('codename')
@@ -432,7 +433,7 @@ if __name__ == "__main__":
 
     q = Queue()
 
-    if len(df2) > 0:
+    if len(table_list) > 0:
         testperiod = int(sys.argv[1])
         totaltime = int(sys.argv[2])
         avgtime = int(sys.argv[3])
@@ -449,7 +450,7 @@ if __name__ == "__main__":
         workcount = int(last / int(sys.argv[6])) + 1
         for j in range(0, last, workcount):
             code_list = table_list[j:j + workcount]
-            p = Process(target=BackTesterStockStg, args=(q, code_list, var, buystg, sellstg, df1, df3))
+            p = Process(target=BackTesterStockStg, args=(q, code_list, var, buystg, sellstg, df1, df2))
             procs.append(p)
             p.start()
         for p in procs:
