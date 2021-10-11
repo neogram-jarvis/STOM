@@ -207,7 +207,7 @@ def SetUI(self):
     icon_coins = QtGui.QIcon(f'{ICON_PATH}/coins.png')
 
     self.setFont(qfont12)
-    self.setWindowTitle('PyStockTrader')
+    self.setWindowTitle('STOM')
     self.setWindowIcon(icon_main)
 
     self.main_tabWidget = TabWidget(self)

@@ -188,7 +188,7 @@ class Window(QtWidgets.QMainWindow):
         if self.showQsize:
             queryQ_size = query1Q.qsize() + query2Q.qsize()
             stocktickQ_size = tick1Q.qsize() + tick2Q.qsize() + tick3Q.qsize() + tick4Q.qsize()
-            text = f'PyStockTrader                                                                   ' \
+            text = f'STOM                                                                       ' \
                    f'windowQ[{windowQ.qsize()}] | soundQ[{soundQ.qsize()}] | ' \
                    f'queryQ[{queryQ_size}] | teleQ[{teleQ.qsize()}] | receivQ[{sreceivQ.qsize()}] | ' \
                    f'stockQ[{stockQ.qsize()}] | coinQ[{coinQ.qsize()}] | sstgQ[{sstgQ.qsize()}] | ' \
