@@ -3,7 +3,7 @@ import pandas as pd
 from PyQt5.QtGui import QFont, QColor
 
 OPENAPI_PATH = 'D:/OpenAPI'
-SYSTEM_PATH = 'D:/PythonProjects/PyStockTrader'
+SYSTEM_PATH = 'D:/PythonProjects/STOM'
 ICON_PATH = f'{SYSTEM_PATH}/utility/icon'
 LOGIN_PATH = f'{SYSTEM_PATH}/stock/login_kiwoom'
 GRAPH_PATH = f'{SYSTEM_PATH}/backtester/graph'
