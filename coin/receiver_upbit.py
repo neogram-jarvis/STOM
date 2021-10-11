@@ -117,7 +117,6 @@ class WebsOrderbook(QThread):
         time.sleep(1)
         codes2 = pyupbit.get_tickers(fiat="KRW")
         codes = codes2 if len(codes2) > len(codes) else codes
-        self.cstgQ.put(['관심종목', codes])
         self.websQ_order = WebSocketManager('orderbook', codes)
         while True:
             data = self.websQ_order.get()
