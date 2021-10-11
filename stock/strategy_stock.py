@@ -92,7 +92,7 @@ class StrategyStock:
     def UpdateList(self, gubun, code):
         if '조건진입' in gubun:
             if code not in self.dict_gsjm.keys():
-                data = np.zeros((DICT_SET['평균값계산시간1'] + 2, len(columns_gj1))).tolist()
+                data = np.zeros((DICT_SET['평균값계산틱수1'] + 2, len(columns_gj1))).tolist()
                 df = pd.DataFrame(data, columns=columns_gj1)
                 self.dict_gsjm[code] = df.copy()
         elif gubun == '조건이탈':
