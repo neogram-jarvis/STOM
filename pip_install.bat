@@ -6,9 +6,9 @@ pip install psutil pyqt5 pandas pyttsx3 matplotlib python-telegram-bot pyupbit w
 @echo ====================================================================================
 @echo utility/setting.py
 @echo OPENAPI_PATH = 'D:/OpenAPI'
-@echo SYSTEM_PATH = 'D:/PythonProjects/PyStockTrader'
+@echo SYSTEM_PATH = 'D:/PythonProjects/STOM'
 @echo ====================================================================================
-@echo pystocktrader.bat
-@echo cd /D D:/PythonProjects/PyStockTrader
+@echo stom.bat
+@echo cd /D D:/PythonProjects/STOM
 @echo ====================================================================================
 pause

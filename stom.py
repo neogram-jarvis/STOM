@@ -194,8 +194,8 @@ class Window(QtWidgets.QMainWindow):
                    f'stockQ[{stockQ.qsize()}] | coinQ[{coinQ.qsize()}] | sstgQ[{sstgQ.qsize()}] | ' \
                    f'cstgQ[{cstgQ.qsize()}] | stocktickQ[{stocktickQ_size}] | cointickQ[{tick5Q.qsize()}]'
             self.setWindowTitle(text)
-        elif self.windowTitle() != 'PyStockTrader':
-            self.setWindowTitle('PyStockTrader')
+        elif self.windowTitle() != 'STOM':
+            self.setWindowTitle('STOM')
 
     def UpdateProgressBar(self):
         if self.counter > 9:
