@@ -1,4 +1,4 @@
-# PyStockTrader
+# STOM(System Trading Operator Machine)
 파이썬 키움증권, 업비스 통합 시스템 트레이딩
 
 ![화면 캡처 2021-10-09 033950](https://user-images.githubusercontent.com/78009194/136617335-392d7ae7-13cb-442b-ae8c-ae8db9b84bdf.png)

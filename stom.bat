@@ -1,4 +1,4 @@
 @echo off
 cd /D D:/PythonProjects/STOM
-python pystocktrader.py
+python stom.py
 pause
