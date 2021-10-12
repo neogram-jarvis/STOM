@@ -47,7 +47,7 @@ class WebsTicker:
 
         self.qtimer4 = QTimer()
         self.qtimer4.setInterval(10000)
-        self.qtimer4.timeout.connect(WebsTicker.ConditionSearch)
+        self.qtimer4.timeout.connect(self.ConditionSearch)
         self.qtimer4.start()
 
         self.Start()
