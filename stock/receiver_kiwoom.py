@@ -116,7 +116,7 @@ class ReceiverKiwoom:
         for code in list_code:
             name = self.GetMasterCodeName(code)
             df.at[code] = name
-            self.dict_name[name] = code
+            self.dict_name[code] = name
             dict_code[name] = code
 
         self.query2Q.put([1, df, 'codename', 'replace'])
