@@ -492,7 +492,7 @@ class ReceiverKiwoom:
             uvi, dvi, vid5price = self.GetVIPrice(code, key)
             self.dict_vipr[code] = [True, timedelta_sec(5), uvi, dvi, vid5price]
 
-    def UpdateTickData(self, name, c, o, h, low, per, dm, ch, bids, asks, code, dt, receivetime):
+    def UpdateTickData(self, code, name, c, o, h, low, per, dm, ch, bids, asks, dt, receivetime):
         dt_ = dt[:-2]
         if code not in self.dict_cdjm.keys():
             columns = ['10초누적거래대금', '10초전당일거래대금']
@@ -503,6 +503,8 @@ class ReceiverKiwoom:
             if len(self.dict_cdjm[code]) == MONEYTOP_MINUTE * 6:
                 if per > 0:
                     self.df_mc.at[code] = self.dict_cdjm[code]['10초누적거래대금'].sum()
+                elif code in self.df_mc.index:
+                    self.df_mc.drop(index=code, inplace=True)
                 self.dict_cdjm[code].drop(index=self.dict_cdjm[code].index[0], inplace=True)
 
         vitime = self.dict_vipr[code][1]
