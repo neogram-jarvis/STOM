@@ -1,5 +1,7 @@
 import zipfile
 import datetime
+import pyqtgraph as pg
+from PyQt5.QtCore import Qt
 from threading import Thread
 from utility.setting import OPENAPI_PATH
 
@@ -122,3 +124,14 @@ def parseDat(trcode, lines):
         fields = {record: field_name}
         enc_data['input'].append(fields) if block_type == 'input' else enc_data['output'].append(fields)
     return enc_data
+
+
+class CustomViewBox(pg.ViewBox):
+    def __init__(self, *args, **kwds):
+        pg.ViewBox.__init__(self, *args, **kwds)
+        self.setMouseMode(self.RectMode)
+        self.setMouseEnabled(x=False, y=False)
+
+    def mouseClickEvent(self, ev):
+        if ev.button() == Qt.RightButton:
+            self.enableAutoRange()

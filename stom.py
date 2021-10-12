@@ -44,8 +44,22 @@ class Window(QtWidgets.QMainWindow):
         self.counter = 0
         self.cpu_per = 0
         self.int_time = int(strf_time('%H%M%S'))
+
         self.dict_name = {}
         self.dict_code = {}
+        con = sqlite3.connect(DB_STOCK_TICK)
+        df = pd.read_sql('SELECT * FROM codename', con).set_index('index')
+        con.close()
+        for code in df.index:
+            name = df['종목명'][code]
+            self.dict_name[code] = name
+            self.dict_code[name] = code
+
+        con = sqlite3.connect(DB_COIN_TICK)
+        df = pd.read_sql("SELECT name FROM sqlite_master WHERE TYPE = 'table'", con)
+        con.close()
+        codenamelist = list(self.dict_code.keys()) + list(self.dict_name.keys()) + list(df['name'].values)
+        self.ct_lineEdit_02.setCompleter(QtWidgets.QCompleter(codenamelist))
 
         self.writer = Writer()
         self.writer.data1.connect(self.UpdateTexedit)
@@ -285,6 +299,154 @@ class Window(QtWidgets.QMainWindow):
         )
         if buttonReply == QtWidgets.QMessageBox.Yes:
             coinQ.put(['매도', code, c, oc])
+
+    @QtCore.pyqtSlot(int)
+    def CellClicked_03(self, row):
+        searchdate = self.s_calendarWidget.selectedDate().toString('yyyyMMdd')
+        item = self.sds_tableWidget.item(row, 1)
+        if item is None:
+            return
+        name = self.cds_tableWidget.item(row, 1).text()
+        self.ShowDialog()
+        tickcount = int(self.ct_lineEdit_01.text()) if self.ct_lineEdit_01.text() != '' else 60
+        self.DrawChart(name, tickcount, searchdate)
+
+    @QtCore.pyqtSlot(int)
+    def CellClicked_04(self, row):
+        searchdate = self.c_calendarWidget.selectedDate().toString('yyyyMMdd')
+        item = self.cds_tableWidget.item(row, 1)
+        if item is None:
+            return
+        name = self.cds_tableWidget.item(row, 1).text()
+        self.ShowDialog()
+        tickcount = int(self.ct_lineEdit_01.text()) if self.ct_lineEdit_01.text() != '' else 60
+        self.DrawChart(name, tickcount, searchdate)
+
+    def ShowDialog(self):
+        if not self.dialog.isVisible():
+            self.dialog.show()
+
+    def ReturnPress_01(self):
+        if self.dialog.isVisible():
+            searchdate = self.ct_dateEdit.date().toString('yyyyMMdd')
+            tickcount = self.ct_lineEdit_01.text()
+            if tickcount == '':
+                return
+            name = self.ct_lineEdit_02.text()
+            if name == '':
+                return
+            self.DrawChart(name, int(tickcount), searchdate)
+
+    def DrawChart(self, name, tickcount, searchdate):
+        coin = False
+        if name in self.dict_code.keys():
+            con = sqlite3.connect(DB_STOCK_TICK)
+            code = self.dict_code[name]
+        elif name in self.dict_code.values():
+            con = sqlite3.connect(DB_STOCK_TICK)
+            code = name
+        else:
+            con = sqlite3.connect(DB_COIN_TICK)
+            code = name
+            coin = True
+
+        try:
+            df = pd.read_sql(f"SELECT * FROM '{code}'", con).set_index('index')
+            con.close()
+        except pd.io.sql.DatabaseError:
+            QtWidgets.QMessageBox.critical(self.dialog, '오류 알림', '해당 종목의 테이블이 존재하지 않습니다.\n')
+            return
+
+        df['고저평균대비등락율'] = (df['현재가'] / ((df['고가'] + df['저가']) / 2) - 1) * 100
+        df['고저평균대비등락율'] = df['고저평균대비등락율'].round(2)
+        if coin:
+            df['체결강도'] = df['누적매수량'] / df['누적매도량'] * 100
+            df['체결강도'] = df['체결강도'].apply(lambda x: 500 if x > 500 else round(x, 2))
+        df['직전체결강도'] = df['체결강도'].shift(1)
+        df['직전당일거래대금'] = df['당일거래대금'].shift(1)
+        df = df.fillna(0)
+        df['초당거래대금'] = df['당일거래대금'] - df['직전당일거래대금']
+        df['직전초당거래대금'] = df['초당거래대금'].shift(1)
+        df = df.fillna(0)
+        df['초당거래대금평균'] = df['직전초당거래대금'].rolling(window=tickcount).mean()
+        df['체결강도평균'] = df['직전체결강도'].rolling(window=tickcount).mean()
+        df['최고체결강도'] = df['직전체결강도'].rolling(window=tickcount).max()
+        df['검색날짜'] = df.index
+        df['검색날짜'] = df['검색날짜'].apply(lambda x: x[:8])
+        df = df[(df['검색날짜'] == searchdate) & (df['초당거래대금'] > 0)]
+
+        if len(df) == 0:
+            QtWidgets.QMessageBox.critical(self.dialog, '오류 알림', '해당 날짜의 데이터가 존재하지 않습니다.\n')
+            return
+
+        self.ct_labellll_03.setVisible(True)
+        self.ct_labellll_04.setVisible(True)
+        self.ct_labellll_05.setVisible(True)
+
+        def crosshair(main_pg, sub_pg1, sub_pg2):
+            vLine1 = pg.InfiniteLine()
+            vLine1.setPen(pg.mkPen(color_fg_bt, width=1))
+            vLine2 = pg.InfiniteLine()
+            vLine2.setPen(pg.mkPen(color_fg_bt, width=1))
+            vLine3 = pg.InfiniteLine()
+            vLine3.setPen(pg.mkPen(color_fg_bt, width=1))
+
+            hLine1 = pg.InfiniteLine(angle=0)
+            hLine1.setPen(pg.mkPen(color_fg_bt, width=1))
+            hLine2 = pg.InfiniteLine(angle=0)
+            hLine2.setPen(pg.mkPen(color_fg_bt, width=1))
+            hLine3 = pg.InfiniteLine(angle=0)
+            hLine3.setPen(pg.mkPen(color_fg_bt, width=1))
+
+            main_pg.addItem(vLine1, ignoreBounds=True)
+            main_pg.addItem(hLine1, ignoreBounds=True)
+            sub_pg1.addItem(vLine2, ignoreBounds=True)
+            sub_pg1.addItem(hLine2, ignoreBounds=True)
+            sub_pg2.addItem(vLine3, ignoreBounds=True)
+            sub_pg2.addItem(hLine3, ignoreBounds=True)
+
+            main_vb = main_pg.getViewBox()
+            sub_vb1 = sub_pg1.getViewBox()
+            sub_vb2 = sub_pg2.getViewBox()
+
+            def mouseMoved(evt):
+                pos = evt[0]
+                if main_pg.sceneBoundingRect().contains(pos):
+                    mousePoint = main_vb.mapSceneToView(pos)
+                    self.ct_labellll_03.setText(f"현재가 {format(round(mousePoint.y(), 2), ',')}")
+                    hLine1.setPos(mousePoint.y())
+                    vLine1.setPos(mousePoint.x())
+                    vLine2.setPos(mousePoint.x())
+                    vLine3.setPos(mousePoint.x())
+                if sub_pg1.sceneBoundingRect().contains(pos):
+                    mousePoint = sub_vb1.mapSceneToView(pos)
+                    self.ct_labellll_04.setText(f"체결강도 {format(round(mousePoint.y(), 2), ',')}")
+                    hLine2.setPos(mousePoint.y())
+                    vLine1.setPos(mousePoint.x())
+                    vLine2.setPos(mousePoint.x())
+                    vLine3.setPos(mousePoint.x())
+                if sub_pg2.sceneBoundingRect().contains(pos):
+                    mousePoint = sub_vb2.mapSceneToView(pos)
+                    self.ct_labellll_05.setText(f"초당거래대금 {format(round(mousePoint.y(), 2), ',')}")
+                    hLine3.setPos(mousePoint.y())
+                    vLine1.setPos(mousePoint.x())
+                    vLine3.setPos(mousePoint.x())
+                    vLine2.setPos(mousePoint.x())
+
+            main_pg.proxy = pg.SignalProxy(main_pg.scene().sigMouseMoved, rateLimit=20, slot=mouseMoved)
+            sub_pg1.proxy = pg.SignalProxy(main_pg.scene().sigMouseMoved, rateLimit=20, slot=mouseMoved)
+            sub_pg2.proxy = pg.SignalProxy(main_pg.scene().sigMouseMoved, rateLimit=20, slot=mouseMoved)
+
+        self.ctpg_01.clear()
+        self.ctpg_02.clear()
+        self.ctpg_03.clear()
+        self.ctpg_01.plot(df['현재가'], pen=(255, 0, 0))
+        self.ctpg_02.plot(df['체결강도'], pen=(0, 255, 0))
+        self.ctpg_02.plot(df['체결강도평균'], pen=(0, 180, 180))
+        self.ctpg_02.plot(df['최고체결강도'], pen=(180, 0, 0))
+        self.ctpg_03.plot(df['초당거래대금'], pen=(0, 0, 255))
+        self.ctpg_03.plot(df['체결강도평균'], pen=(0, 180, 180))
+        crosshair(main_pg=self.ctpg_01, sub_pg1=self.ctpg_02, sub_pg2=self.ctpg_03)
 
     def ButtonClicked_01(self):
         if self.main_tabWidget.currentWidget() == self.st_tab:
@@ -1216,9 +1378,6 @@ class Window(QtWidgets.QMainWindow):
             self.log2.info(text)
         elif data[0] == ui_num['C단순텍스트']:
             self.cc_textEdit.append(text)
-        elif data[0] == ui_num['S종목명딕셔너리']:
-            self.dict_name = data[1]
-            self.dict_code = data[2]
         elif data[0] == ui_num['S전략텍스트']:
             self.ss_textEdit_04.append(text)
         elif data[0] == ui_num['C전략텍스트']:

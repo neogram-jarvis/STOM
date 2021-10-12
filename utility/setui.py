@@ -1,7 +1,10 @@
+import pyqtgraph as pg
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from utility import syntax
 from utility.setting import *
+from utility.static import CustomViewBox
 
 
 class TabBar(QtWidgets.QTabBar):
@@ -99,11 +102,13 @@ def SetUI(self):
         combobox.currentTextChanged.connect(Activated)
         return combobox
 
-    def setLineedit(groupbox):
+    def setLineedit(groupbox, enter=None):
         lineedit = QtWidgets.QLineEdit(groupbox)
         lineedit.setAlignment(Qt.AlignRight)
         lineedit.setStyleSheet(style_fc_bt)
         lineedit.setFont(qfont12)
+        if enter:
+            lineedit.returnPressed.connect(enter)
         return lineedit
 
     def setLineedit2(tab):
@@ -243,12 +248,14 @@ def SetUI(self):
     self.dd_pushButton = setPushbutton('', click=self.ButtonClicked_04, icon=icon_dbdel, tip='  거래목록 데이터 삭제 및 초기화')
     self.sd_pushButton = setPushbutton('', click=self.ButtonClicked_05, icon=icon_accdel, tip='  모든 계정 설정 삭제 및 초기화')
     self.qs_pushButton = setPushbutton('', click=self.ShowQsize)
+    self.ct_pushButton = setPushbutton('', click=self.ShowDialog)
     self.tt_pushButton.setShortcut('Alt+T')
     self.ms_pushButton.setShortcut('Alt+S')
     self.zo_pushButton.setShortcut('Alt+Z')
     self.dd_pushButton.setShortcut('Alt+X')
     self.sd_pushButton.setShortcut('Alt+A')
     self.qs_pushButton.setShortcut('Alt+Q')
+    self.ct_pushButton.setShortcut('Alt+C')
 
     self.progressBar = QtWidgets.QProgressBar(self)
     self.progressBar.setAlignment(Qt.AlignCenter)
@@ -268,7 +275,7 @@ def SetUI(self):
     self.s_calendarWidget.setCurrentPage(todayDate.year(), todayDate.month())
     self.s_calendarWidget.clicked.connect(lambda: self.CalendarClicked('S'))
     self.sdt_tableWidget = setTablewidget(self.st_tab, columns_dt, 1)
-    self.sds_tableWidget = setTablewidget(self.st_tab, columns_dd, 19)
+    self.sds_tableWidget = setTablewidget(self.st_tab, columns_dd, 19, clicked=self.CellClicked_03)
 
     self.snt_pushButton_01 = setPushbutton('일별집계', box=self.st_tab, click=self.ButtonClicked_06, cmd='S일별집계')
     self.snt_pushButton_02 = setPushbutton('월별집계', box=self.st_tab, click=self.ButtonClicked_06, cmd='S월별집계')
@@ -296,7 +303,7 @@ def SetUI(self):
     self.c_calendarWidget.setCurrentPage(todayDate.year(), todayDate.month())
     self.c_calendarWidget.clicked.connect(lambda: self.CalendarClicked('C'))
     self.cdt_tableWidget = setTablewidget(self.ct_tab, columns_dt, 1)
-    self.cds_tableWidget = setTablewidget(self.ct_tab, columns_dd, 19)
+    self.cds_tableWidget = setTablewidget(self.ct_tab, columns_dd, 19, clicked=self.CellClicked_04)
 
     self.cnt_pushButton_01 = setPushbutton('일별집계', box=self.ct_tab, click=self.ButtonClicked_06, cmd='C일별집계')
     self.cnt_pushButton_02 = setPushbutton('월별집계', box=self.ct_tab, click=self.ButtonClicked_06, cmd='C월별집계')
@@ -518,6 +525,78 @@ def SetUI(self):
     self.sc_textEdit = setTextEdit(self.lg_tab)
     self.cc_textEdit = setTextEdit(self.lg_tab)
 
+    self.dialog = QDialog()
+    self.dialog.setWindowTitle('STOM CHART')
+    self.dialog.setWindowModality(Qt.NonModal)
+    self.dialog.setWindowIcon(QtGui.QIcon(f'{ICON_PATH}/python.png'))
+    self.dialog.geometry().center()
+
+    self.ct_groupBox_01 = QtWidgets.QGroupBox(' ', self.dialog)
+    self.ct_groupBox_02 = QtWidgets.QGroupBox(' ', self.dialog)
+
+    self.ct_dateEdit = QtWidgets.QDateEdit(self.ct_groupBox_01)
+    self.ct_dateEdit.setDate(QtCore.QDate.currentDate())
+    self.ct_dateEdit.setStyleSheet(style_bc_dk)
+    self.ct_labellll_01 = QtWidgets.QLabel('평균값계산틱수', self.ct_groupBox_01)
+    self.ct_lineEdit_01 = setLineedit(self.ct_groupBox_01)
+    self.ct_lineEdit_01.setStyleSheet(style_bc_dk)
+    self.ct_labellll_02 = QtWidgets.QLabel('종목명 또는 종목코드', self.ct_groupBox_01)
+    self.ct_lineEdit_02 = setLineedit(self.ct_groupBox_01, enter=self.ReturnPress_01)
+    self.ct_lineEdit_02.setStyleSheet(style_bc_dk)
+    self.ct_pushButton_01 = setPushbutton('검색하기', box=self.ct_groupBox_01, click=self.ReturnPress_01)
+
+    ctpg = pg.GraphicsLayoutWidget()
+    self.ctpg_01 = ctpg.addPlot(row=0, col=0, viewBox=CustomViewBox())
+    self.ctpg_02 = ctpg.addPlot(row=1, col=0, viewBox=CustomViewBox())
+    self.ctpg_03 = ctpg.addPlot(row=2, col=0, viewBox=CustomViewBox())
+    self.ctpg_01.showAxis('left', False)
+    self.ctpg_01.showAxis('right', True)
+    self.ctpg_01.getAxis('right').setStyle(tickTextWidth=45, autoExpandTextSpace=False)
+    self.ctpg_01.getAxis('right').setTickFont(qfont12)
+    self.ctpg_01.getAxis('bottom').setTickFont(qfont12)
+    self.ctpg_02.showAxis('left', False)
+    self.ctpg_02.showAxis('right', True)
+    self.ctpg_02.getAxis('right').setStyle(tickTextWidth=45, autoExpandTextSpace=False)
+    self.ctpg_02.getAxis('right').setTickFont(qfont12)
+    self.ctpg_02.getAxis('bottom').setTickFont(qfont12)
+    self.ctpg_03.showAxis('left', False)
+    self.ctpg_03.showAxis('right', True)
+    self.ctpg_03.getAxis('right').setStyle(tickTextWidth=45, autoExpandTextSpace=False)
+    self.ctpg_03.getAxis('right').setTickFont(qfont12)
+    self.ctpg_03.getAxis('bottom').setTickFont(qfont12)
+    self.ctpg_02.setXLink(self.ctpg_01)
+    self.ctpg_03.setXLink(self.ctpg_01)
+    qGraphicsGridLayout = ctpg.ci.layout
+    qGraphicsGridLayout.setRowStretchFactor(0, 1)
+    qGraphicsGridLayout.setRowStretchFactor(1, 1)
+    qGraphicsGridLayout.setRowStretchFactor(2, 1)
+    ctpg_vboxLayout = QtWidgets.QVBoxLayout(self.ct_groupBox_02)
+    ctpg_vboxLayout.setContentsMargins(3, 6, 3, 3)
+    ctpg_vboxLayout.addWidget(ctpg)
+
+    self.ct_labellll_03 = QtWidgets.QLabel('현재가', self.ct_groupBox_02)
+    self.ct_labellll_04 = QtWidgets.QLabel('체결강도', self.ct_groupBox_02)
+    self.ct_labellll_05 = QtWidgets.QLabel('초당거래대금', self.ct_groupBox_02)
+
+    self.dialog.setFixedSize(760, 1000)
+    self.ct_groupBox_01.setGeometry(5, -10, 750, 62)
+    self.ct_groupBox_02.setGeometry(5, 40, 750, 955)
+
+    self.ct_dateEdit.setGeometry(10, 25, 160, 30)
+    self.ct_labellll_01.setGeometry(190, 25, 90, 30)
+    self.ct_lineEdit_01.setGeometry(290, 25, 80, 30)
+    self.ct_labellll_02.setGeometry(390, 25, 120, 30)
+    self.ct_lineEdit_02.setGeometry(520, 25, 120, 30)
+    self.ct_pushButton_01.setGeometry(650, 25, 95, 30)
+
+    self.ct_labellll_03.setGeometry(30, 30, 200, 30)
+    self.ct_labellll_04.setGeometry(30, 345, 200, 30)
+    self.ct_labellll_05.setGeometry(30, 650, 200, 30)
+
+    self.ct_labellll_03.setVisible(False)
+    self.ct_labellll_04.setVisible(False)
+    self.ct_labellll_05.setVisible(False)
+
     self.setFixedSize(1403, 763)
     self.geometry().center()
     self.main_tabWidget.setGeometry(5, 5, 1393, 753)
@@ -528,6 +607,7 @@ def SetUI(self):
     self.dd_pushButton.setGeometry(5, 687, 35, 32)
     self.sd_pushButton.setGeometry(5, 724, 35, 32)
     self.qs_pushButton.setGeometry(0, 0, 0, 0)
+    self.ct_pushButton.setGeometry(0, 0, 0, 0)
 
     self.stt_tableWidget.setGeometry(5, 5, 668, 42)
     self.std_tableWidget.setGeometry(5, 52, 668, 320)
