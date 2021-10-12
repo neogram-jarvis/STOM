@@ -1269,7 +1269,7 @@ class Window(QtWidgets.QMainWindow):
             return
 
         if len(df) == 0:
-            if tableWidget.item(0, 0) is not None:
+            if tableWidget.item(1, 0) is not None:
                 tableWidget.clearContents()
             return
 
@@ -1342,7 +1342,7 @@ class Window(QtWidgets.QMainWindow):
             gj_tableWidget = self.cgj_tableWidget
 
         if len(dict_df) == 0:
-            if gj_tableWidget.item(0, 0) is not None:
+            if gj_tableWidget.item(1, 0) is not None:
                 gj_tableWidget.clearContents()
             return
 
