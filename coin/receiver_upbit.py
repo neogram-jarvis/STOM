@@ -119,10 +119,16 @@ class WebsTicker:
 
     def UpdateJangolist(self, data):
         code = data[1]
-        if data[0] == '잔고편입':
-            self.InsertGsjmlist(code)
-        elif data[0] == '잔고청산':
-            self.DeleteGsjmlist(code)
+        if '잔고편입' in data and code not in self.list_jang:
+            self.list_jang.append(code)
+            if code not in self.dict_gsjm.keys():
+                self.dict_gsjm[code] = '000000'
+                self.cstgQ.put(['조건진입', code])
+        elif '잔고청산' in data and code in self.list_jang:
+            self.list_jang.remove(code)
+            if code not in self.list_gsjm and code in self.dict_gsjm.keys():
+                self.cstgQ.put(['조건이탈', code])
+                del self.dict_gsjm[code]
 
     def ConditionSearch(self):
         if len(self.df_mc) > 0:
@@ -137,6 +143,7 @@ class WebsTicker:
                 for code in list(delete_list):
                     self.DeleteGsjmlist(code)
             self.pre_top = list_top
+            print('최근거래대금순위 갱신', list_top)
 
     def InsertGsjmlist(self, code):
         if code not in self.list_gsjm:
@@ -182,8 +189,10 @@ class WebsTicker:
             if len(self.dict_cdjm[code]) == MONEYTOP_MINUTE * 6:
                 if per > 0:
                     self.df_mc.at[code] = self.dict_cdjm[code]['10초누적거래대금'].sum()
+                    print('10초누적거래대금기록', code)
                 elif code in self.df_mc.index:
                     self.df_mc.drop(index=code, inplace=True)
+                    print('10초누적거래대금삭제', code)
                 self.dict_cdjm[code].drop(index=self.dict_cdjm[code].index[0], inplace=True)
 
         data = [c, o, h, low, per, dm, bids, asks, tbids, tasks, code, dt, receivetime]
