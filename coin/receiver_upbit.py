@@ -183,8 +183,8 @@ class WebsTicker:
             columns = ['10초누적거래대금', '10초전당일거래대금']
             self.dict_cdjm[code] = pd.DataFrame([[0, dm]], columns=columns, index=[dt_])
         elif dt_ != self.dict_cdjm[code].index[-1]:
-            직전당일거래대금 = self.dict_cdjm[code]['10초전당일거래대금'][-1]
-            self.dict_cdjm[code].at[dt_] = dm - 직전당일거래대금, dm
+            predm = self.dict_cdjm[code]['10초전당일거래대금'][-1]
+            self.dict_cdjm[code].at[dt_] = dm - predm, dm
             if len(self.dict_cdjm[code]) == MONEYTOP_MINUTE * 6:
                 if per > 0:
                     self.df_mc.at[code] = self.dict_cdjm[code]['10초누적거래대금'].sum()
