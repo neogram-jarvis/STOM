@@ -143,7 +143,6 @@ class WebsTicker:
                 for code in list(delete_list):
                     self.DeleteGsjmlist(code)
             self.pre_top = list_top
-            print('최근거래대금순위 갱신', list_top)
 
     def InsertGsjmlist(self, code):
         if code not in self.list_gsjm:
@@ -189,10 +188,8 @@ class WebsTicker:
             if len(self.dict_cdjm[code]) == MONEYTOP_MINUTE * 6:
                 if per > 0:
                     self.df_mc.at[code] = self.dict_cdjm[code]['10초누적거래대금'].sum()
-                    print('10초누적거래대금기록', code)
                 elif code in self.df_mc.index:
                     self.df_mc.drop(index=code, inplace=True)
-                    print('10초누적거래대금삭제', code)
                 self.dict_cdjm[code].drop(index=self.dict_cdjm[code].index[0], inplace=True)
 
         data = [c, o, h, low, per, dm, bids, asks, tbids, tasks, code, dt, receivetime]
