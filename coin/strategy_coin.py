@@ -122,6 +122,8 @@ class StrategyCoin:
             if len(self.dict_cdjm[종목명]) == MONEYTOP_MINUTE * 6:
                 if 등락율 > 0:
                     self.df_mc.at[종목명] = self.dict_cdjm[종목명]['10초누적거래대금'].sum()
+                elif 종목명 in self.df_mc.index:
+                    self.df_mc.drop(index=종목명, inplace=True)
                 self.dict_cdjm[종목명].drop(index=self.dict_cdjm[종목명].index[0], inplace=True)
 
         if len(self.df_mc) == 0:
