@@ -120,7 +120,6 @@ class ReceiverKiwoom:
             dict_code[name] = code
 
         self.query2Q.put([1, df, 'codename', 'replace'])
-        self.windowQ.put([ui_num['S종목명딕셔너리'], self.dict_name, dict_code])
 
         data = self.ocx.dynamicCall('GetConditionNameList()')
         conditions = data.split(';')[:-1]
