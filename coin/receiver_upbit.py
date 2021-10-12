@@ -27,7 +27,6 @@ class WebsTicker:
         self.cstgQ = qlist[10]
         self.tick5Q = qlist[15]
 
-        self.dict_gsjm = {}
         self.dict_cdjm = {}
         self.dict_time = {
             '거래대금순위기록': now(),
@@ -35,6 +34,7 @@ class WebsTicker:
         }
 
         self.list_gsjm = []
+        self.list_gsjm2 = []
         self.list_jang = []
         self.pre_top = []
 
@@ -121,14 +121,14 @@ class WebsTicker:
         code = data[1]
         if '잔고편입' in data and code not in self.list_jang:
             self.list_jang.append(code)
-            if code not in self.dict_gsjm.keys():
-                self.dict_gsjm[code] = '000000'
+            if code not in self.list_gsjm2:
                 self.cstgQ.put(['조건진입', code])
+                self.list_gsjm2.append(code)
         elif '잔고청산' in data and code in self.list_jang:
             self.list_jang.remove(code)
-            if code not in self.list_gsjm and code in self.dict_gsjm.keys():
+            if code not in self.list_gsjm and code in self.list_gsjm2:
                 self.cstgQ.put(['조건이탈', code])
-                del self.dict_gsjm[code]
+                self.list_gsjm2.remove(code)
 
     def ConditionSearch(self):
         if len(self.df_mc) > 0:
@@ -148,16 +148,16 @@ class WebsTicker:
     def InsertGsjmlist(self, code):
         if code not in self.list_gsjm:
             self.list_gsjm.append(code)
-        if code not in self.list_jang and code not in self.dict_gsjm.keys():
+        if code not in self.list_jang and code not in self.list_gsjm2:
             self.cstgQ.put(['조건진입', code])
-            self.dict_gsjm[code] = '000000'
+            self.list_gsjm2.append(code)
 
     def DeleteGsjmlist(self, code):
         if code in self.list_gsjm:
             self.list_gsjm.remove(code)
-        if code not in self.list_jang and code in self.dict_gsjm.keys():
+        if code not in self.list_jang and code in self.list_gsjm2:
             self.cstgQ.put(['조건이탈', code])
-            del self.dict_gsjm[code]
+            self.list_gsjm2.remove(code)
 
     def UpdateMoneyTop(self):
         timetype = '%Y%m%d%H%M%S'
@@ -196,7 +196,7 @@ class WebsTicker:
                 self.dict_cdjm[code].drop(index=self.dict_cdjm[code].index[0], inplace=True)
 
         data = [c, o, h, low, per, dm, bids, asks, tbids, tasks, code, dt, receivetime]
-        if DICT_SET['업비트트레이더'] and code in self.dict_gsjm.keys():
+        if DICT_SET['업비트트레이더'] and code in self.list_gsjm2:
             injango = code in self.list_jang
             self.cstgQ.put(data + [injango])
             if injango:

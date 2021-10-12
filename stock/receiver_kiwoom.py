@@ -45,7 +45,6 @@ class ReceiverKiwoom:
             'CD수신': False,
             'CR수신': False
         }
-        self.dict_gsjm = {}
         self.dict_cdjm = {}
         self.dict_vipr = {}
         self.dict_tick = {}
@@ -54,6 +53,7 @@ class ReceiverKiwoom:
         self.dict_name = {}
 
         self.list_gsjm = []
+        self.list_gsjm2 = []
         self.list_trcd = []
         self.list_jang = []
         self.pre_top = []
@@ -196,14 +196,14 @@ class ReceiverKiwoom:
         code = data.split(' ')[1]
         if '잔고편입' in data and code not in self.list_jang:
             self.list_jang.append(code)
-            if code not in self.dict_gsjm.keys():
-                self.dict_gsjm[code] = '090000'
+            if code not in self.list_gsjm2:
                 self.sstgQ.put(['조건진입', code])
+                self.list_gsjm2.append(code)
         elif '잔고청산' in data and code in self.list_jang:
             self.list_jang.remove(code)
-            if code not in self.list_gsjm and code in self.dict_gsjm.keys():
+            if code not in self.list_gsjm and code in self.list_gsjm2:
                 self.sstgQ.put(['조건이탈', code])
-                del self.dict_gsjm[code]
+                self.list_gsjm2.remove(code)
 
     def OperationRealreg(self):
         self.sreceivQ.put([sn_oper, ' ', '215;20;214', 0])
@@ -268,16 +268,16 @@ class ReceiverKiwoom:
     def InsertGsjmlist(self, code):
         if code not in self.list_gsjm:
             self.list_gsjm.append(code)
-        if code not in self.list_jang and code not in self.dict_gsjm.keys():
+        if code not in self.list_jang and code not in self.list_gsjm2:
             self.sstgQ.put(['조건진입', code])
-            self.dict_gsjm[code] = '090000'
+            self.list_gsjm2.append(code)
 
     def DeleteGsjmlist(self, code):
         if code in self.list_gsjm:
             self.list_gsjm.remove(code)
-        if code not in self.list_jang and code in self.dict_gsjm.keys():
+        if code not in self.list_jang and code in self.list_gsjm2:
             self.sstgQ.put(['조건이탈', code])
-            del self.dict_gsjm[code]
+            self.list_gsjm2.remove(code)
 
     def AllRemoveRealreg(self):
         self.sreceivQ.put(['ALL', 'ALL'])
@@ -512,7 +512,7 @@ class ReceiverKiwoom:
         data = [c, o, h, low, per, dm, ch, bids, asks, vitime, vid5price]
         data += self.dict_hoga[code] + [code, dt, receivetime]
 
-        if DICT_SET['키움트레이더'] and code in self.dict_gsjm.keys():
+        if DICT_SET['키움트레이더'] and code in self.list_gsjm2:
             injango = code in self.list_jang
             self.sstgQ.put(data + [name, injango])
             if injango:
