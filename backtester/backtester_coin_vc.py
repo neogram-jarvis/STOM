@@ -471,6 +471,7 @@ if __name__ == "__main__":
     con.close()
 
     table_list = list(df['name'].values)
+    table_list.remove('moneytop')
     last = len(table_list)
 
     q = Queue()
