@@ -426,7 +426,7 @@ if __name__ == "__main__":
     df2 = pd.read_sql('SELECT * FROM moneytop', con).set_index('index')
     con.close()
 
-    table_list = list(df2['name'].values)
+    table_list = list(df['name'].values)
     table_list.remove('moneytop')
     table_list.remove('codename')
     last = len(table_list)
