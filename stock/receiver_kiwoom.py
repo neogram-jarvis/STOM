@@ -493,7 +493,7 @@ class ReceiverKiwoom:
             self.dict_vipr[code] = [True, timedelta_sec(5), uvi, dvi, vid5price]
 
     def UpdateTickData(self, code, name, c, o, h, low, per, dm, ch, bids, asks, dt, receivetime):
-        dt_ = dt[:-2]
+        dt_ = dt[:13]
         if code not in self.dict_cdjm.keys():
             columns = ['10초누적거래대금', '10초전당일거래대금']
             self.dict_cdjm[code] = pd.DataFrame([[0, dm]], columns=columns, index=[dt_])
