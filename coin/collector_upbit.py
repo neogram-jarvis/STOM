@@ -41,8 +41,6 @@ class CollectorUpbit:
         data.remove(code)
         data.remove(dt)
         data.remove(receivetime)
-
-        dt = strf_time('%Y%m%d%H%M%S', timedelta_hour(9, strp_time('%Y%m%d%H%M%S', dt)))
         data += self.dict_orderbook[code]
 
         if code not in self.dict_df.keys():

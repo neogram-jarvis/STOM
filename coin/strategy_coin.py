@@ -5,9 +5,6 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from utility.static import *
 from utility.setting import *
 
-MONEYTOP_MINUTE = 10        # 최근거래대금순위을 집계할 시간
-MONEYTOP_RANK = 20          # 최근거래대금순위중 관심종목으로 선정할 순위
-
 
 class StrategyCoin:
     def __init__(self, qlist):
@@ -51,10 +48,7 @@ class StrategyCoin:
         self.list_buy = []
         self.list_sell = []
         self.int_tujagm = 0
-        self.dt_mtct = None
 
-        self.df_mt = pd.DataFrame(columns=['거래대금순위'])
-        self.df_mc = pd.DataFrame(columns=['최근거래대금'])
         self.dict_cdjm = {}     # key: 종목코드, value: DataFrame
         self.dict_gsjm = {}     # key: 종목코드, value: DataFrame
         self.dict_hgjr = {}     # key: 종목코드, value: list
@@ -94,17 +88,25 @@ class StrategyCoin:
         data.remove(code)
         self.dict_hgjr[code] = data
 
-    def UpdateList(self, gubun, codes):
-        if gubun in ['매수완료', '매수취소']:
-            if codes in self.list_buy:
-                self.list_buy.remove(codes)
+    def UpdateList(self, gubun, code):
+        if '조건진입' in gubun:
+            if code not in self.dict_gsjm.keys():
+                data = np.zeros((DICT_SET['평균값계산틱수2'] + 2, len(columns_gj1))).tolist()
+                df = pd.DataFrame(data, columns=columns_gj1)
+                self.dict_gsjm[code] = df.copy()
+        elif gubun == '조건이탈':
+            if code in self.dict_gsjm.keys():
+                del self.dict_gsjm[code]
+        elif gubun in ['매수완료', '매수취소']:
+            if code in self.list_buy:
+                self.list_buy.remove(code)
         elif gubun in ['매도완료', '매도취소']:
-            if codes in self.list_sell:
-                self.list_sell.remove(codes)
+            if code in self.list_sell:
+                self.list_sell.remove(code)
         elif gubun == '매수전략':
-            self.buystrategy = compile(codes, '<string>', 'exec')
+            self.buystrategy = compile(code, '<string>', 'exec')
         elif gubun == '매도전략':
-            self.sellstrategy = compile(codes, '<string>', 'exec')
+            self.sellstrategy = compile(code, '<string>', 'exec')
         elif gubun == '매수전략중지':
             self.buystrategy = None
         elif gubun == '매도전략중지':
@@ -112,35 +114,6 @@ class StrategyCoin:
 
     def BuyStrategy(self, 현재가, 시가, 고가, 저가, 등락율, 당일거래대금, 초당매수수량, 초당매도수량,
                     누적매수량, 누적매도량, 종목명, 체결시간, 수신시간, 잔고종목):
-        dt = 체결시간[:13]
-        if 종목명 not in self.dict_cdjm.keys():
-            columns = ['10초누적거래대금', '10초전당일거래대금']
-            self.dict_cdjm[종목명] = pd.DataFrame([[0, 당일거래대금]], columns=columns, index=[dt])
-        elif dt != self.dict_cdjm[종목명].index[-1]:
-            직전당일거래대금 = self.dict_cdjm[종목명]['10초전당일거래대금'][-1]
-            self.dict_cdjm[종목명].at[dt] = 당일거래대금 - 직전당일거래대금, 당일거래대금
-            if len(self.dict_cdjm[종목명]) == MONEYTOP_MINUTE * 6:
-                if 등락율 > 0:
-                    self.df_mc.at[종목명] = self.dict_cdjm[종목명]['10초누적거래대금'].sum()
-                elif 종목명 in self.df_mc.index:
-                    self.df_mc.drop(index=종목명, inplace=True)
-                self.dict_cdjm[종목명].drop(index=self.dict_cdjm[종목명].index[0], inplace=True)
-
-        if len(self.df_mc) == 0:
-            return
-
-        self.df_mc.sort_values(by=['최근거래대금'], ascending=False, inplace=True)
-        if 종목명 in self.df_mc.index[:MONEYTOP_RANK] and 종목명 not in self.dict_gsjm.keys():
-            data = np.zeros((DICT_SET['평균값계산틱수2'] + 2, len(columns_gj1))).tolist()
-            df = pd.DataFrame(data, columns=columns_gj1)
-            self.dict_gsjm[종목명] = df.copy()
-        elif 종목명 not in self.df_mc.index[:MONEYTOP_RANK] and 종목명 in self.dict_gsjm.keys():
-            del self.dict_gsjm[종목명]
-
-        if now() > self.dict_time['거래대금순위기록']:
-            self.UpdateMoneyTop(체결시간)
-            self.dict_time['거래대금순위기록'] = timedelta_sec(1)
-
         if 종목명 not in self.dict_gsjm.keys():
             return
 
@@ -212,22 +185,3 @@ class StrategyCoin:
                 exec(self.sellstrategy, None, locals())
             except Exception as e:
                 self.windowQ.put([ui_num['C단순텍스트'], f'전략스 설정 오류 알림 - SellStrategy {e}'])
-
-    def UpdateMoneyTop(self, dt):
-        timetype = '%Y%m%d%H%M%S'
-        list_text = ';'.join(list(self.df_mc.index[:MONEYTOP_RANK]))
-        curr_time = dt
-        curr_datetime = strp_time(timetype, curr_time)
-        if self.dt_mtct is not None:
-            gap_seconds = (curr_datetime - self.dt_mtct).total_seconds()
-            while gap_seconds > 2:
-                gap_seconds -= 1
-                pre_time = strf_time(timetype, timedelta_sec(-gap_seconds, curr_datetime))
-                self.df_mt.at[pre_time] = list_text
-        self.df_mt.at[curr_time] = list_text
-        self.dt_mtct = curr_datetime
-
-        if now() > self.dict_time['거래대금순위저장']:
-            self.query2Q.put([2, self.df_mt, 'moneytop', 'append'])
-            self.df_mt = pd.DataFrame(columns=['거래대금순위'])
-            self.dict_time['거래대금순위저장'] = timedelta_sec(10)

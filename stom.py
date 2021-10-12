@@ -73,19 +73,19 @@ class Window(QtWidgets.QMainWindow):
         self.startUpbitCollector = False
         self.backtester_proc = None
 
-        self.receiver_coin_thread1 = WebsTicker(qlist)
-        self.receiver_coin_thread2 = WebsOrderbook(qlist)
-        self.collector_coin_proc = Process(target=CollectorUpbit, args=(qlist,), daemon=True)
-        self.strategy_coin_proc = Process(target=StrategyCoin, args=(qlist,), daemon=True)
-        self.trader_coin_proc = Process(target=TraderUpbit, args=(qlist,), daemon=True)
+        self.receiver_coin_proc1 = Process(target=WebsTicker, args=(qlist,))
+        self.receiver_coin_proc2 = Process(target=WebsOrderbook, args=(qlist,))
+        self.collector_coin_proc = Process(target=CollectorUpbit, args=(qlist,))
+        self.strategy_coin_proc = Process(target=StrategyCoin, args=(qlist,))
+        self.trader_coin_proc = Process(target=TraderUpbit, args=(qlist,))
 
-        self.receiver_stock_proc = Process(target=ReceiverKiwoom, args=(qlist,), daemon=True)
-        self.collector_stock_proc1 = Process(target=CollectorKiwoom, args=(1, qlist), daemon=True)
-        self.collector_stock_proc2 = Process(target=CollectorKiwoom, args=(2, qlist), daemon=True)
-        self.collector_stock_proc3 = Process(target=CollectorKiwoom, args=(3, qlist), daemon=True)
-        self.collector_stock_proc4 = Process(target=CollectorKiwoom, args=(4, qlist), daemon=True)
-        self.strategy_stock_proc = Process(target=StrategyStock, args=(qlist,), daemon=True)
-        self.trader_stock_proc = Process(target=TraderKiwoom, args=(qlist,), daemon=True)
+        self.receiver_stock_proc = Process(target=ReceiverKiwoom, args=(qlist,))
+        self.collector_stock_proc1 = Process(target=CollectorKiwoom, args=(1, qlist))
+        self.collector_stock_proc2 = Process(target=CollectorKiwoom, args=(2, qlist))
+        self.collector_stock_proc3 = Process(target=CollectorKiwoom, args=(3, qlist))
+        self.collector_stock_proc4 = Process(target=CollectorKiwoom, args=(4, qlist))
+        self.strategy_stock_proc = Process(target=StrategyStock, args=(qlist,))
+        self.trader_stock_proc = Process(target=TraderKiwoom, args=(qlist,))
 
     def ProcessStarter(self):
         if now().weekday() not in [6, 7]:
@@ -144,8 +144,8 @@ class Window(QtWidgets.QMainWindow):
                 self, '오류 알림', '키움 첫번째 계정이 설정되지 않아\n트레이더를 시작할 수 없습니다.\n계정 설정 후 다시 시작하십시오.\n')
 
     def UpbitCollectorStart(self):
-        self.receiver_coin_thread1.start()
-        self.receiver_coin_thread2.start()
+        self.receiver_coin_proc1.start()
+        self.receiver_coin_proc2.start()
         self.collector_coin_proc.start()
         text = '코인 리시버 및 콜렉터를 시작하였습니다.'
         soundQ.put(text)
@@ -1462,12 +1462,10 @@ class Window(QtWidgets.QMainWindow):
                 self.collector_stock_proc4.kill()
             if self.receiver_stock_proc.is_alive():
                 self.receiver_stock_proc.kill()
-            if self.receiver_coin_thread1.isRunning():
-                self.receiver_coin_thread1.websQ_ticker.terminate()
-                self.receiver_coin_thread1.terminate()
-            if self.receiver_coin_thread2.isRunning():
-                self.receiver_coin_thread2.websQ_order.terminate()
-                self.receiver_coin_thread2.terminate()
+            if self.receiver_coin_proc1.is_alive():
+                self.receiver_coin_proc1.kill()
+            if self.receiver_coin_proc2.is_alive():
+                self.receiver_coin_proc2.kill()
             a.accept()
         else:
             a.ignore()
