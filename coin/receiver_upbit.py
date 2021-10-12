@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import pyupbit
-from PyQt5.QtCore import QTimer
+from threading import Timer
 from pyupbit import WebSocketManager
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from utility.static import *
@@ -45,16 +45,11 @@ class WebsTicker:
         self.dt_mtct = None
         self.websQ_ticker = None
 
-        self.qtimer4 = QTimer()
-        self.qtimer4.setInterval(10000)
-        self.qtimer4.timeout.connect(self.ConditionSearch)
-        self.qtimer4.start()
+        Timer(10, self.ConditionSearch).start()
 
         self.Start()
 
     def __del__(self):
-        if self.qtimer4.isActive():
-            self.qtimer4.stop()
         if self.websQ_ticker is not None:
             self.websQ_ticker.terminate()
 
@@ -143,6 +138,7 @@ class WebsTicker:
                 for code in list(delete_list):
                     self.DeleteGsjmlist(code)
             self.pre_top = list_top
+        Timer(10, self.ConditionSearch).start()
 
     def InsertGsjmlist(self, code):
         if code not in self.list_gsjm:
