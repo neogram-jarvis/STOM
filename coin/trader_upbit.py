@@ -234,6 +234,7 @@ class TraderUpbit:
                 cc += float(trades[i]['volume'])
             if cc > 0:
                 cp = round(tg / cc, 2)
+                cc = round(cc, 8)
                 self.UpdateBuy(code, cp, cc)
 
     def CheckSellChegeol(self):
@@ -247,6 +248,7 @@ class TraderUpbit:
                 cc += float(trades[i]['volume'])
             if cc > 0:
                 cp = round(tg / cc, 2)
+                cc = round(cc, 8)
                 self.UpdateSell(code, cp, cc)
 
     """ 주문과 체결확인의 리턴값에 에러가 있을 경우 에러명과 메세지를 로그에 기록한다."""
