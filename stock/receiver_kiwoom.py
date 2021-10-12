@@ -518,7 +518,7 @@ class ReceiverKiwoom:
             if injango:
                 self.stockQ.put([code, name, c])
 
-        data[10] = strf_time('%Y%m%d%H%M%S', vitime)
+        data[9] = strf_time('%Y%m%d%H%M%S', vitime)
         if code in self.list_code1:
             self.tick1Q.put(data)
         elif code in self.list_code2:
