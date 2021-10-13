@@ -1,10 +1,8 @@
-import pyqtgraph as pg
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog
 from PyQt5 import QtCore, QtGui, QtWidgets
 from utility import syntax
 from utility.setting import *
-from utility.static import CustomViewBox
+from utility.static import *
 
 
 class TabBar(QtWidgets.QTabBar):
@@ -545,7 +543,7 @@ def SetUI(self):
     self.ct_lineEdit_02.setStyleSheet(style_bc_dk)
     self.ct_pushButton_01 = setPushbutton('검색하기', box=self.ct_groupBox_01, click=self.ReturnPress_01)
 
-    ctpg = pg.GraphicsLayoutWidget()
+    ctpg = pyqtgraph.GraphicsLayoutWidget()
     self.ctpg_01 = ctpg.addPlot(row=0, col=0, viewBox=CustomViewBox())
     self.ctpg_02 = ctpg.addPlot(row=1, col=0, viewBox=CustomViewBox())
     self.ctpg_03 = ctpg.addPlot(row=2, col=0, viewBox=CustomViewBox())
@@ -792,6 +790,11 @@ def SetUI(self):
     self.sj_cacc_labellll_02.setGeometry(495, 30, 65, 20)
     self.sj_cacc_lineEdit_02.setGeometry(570, 30, 400, 20)
 
+    self.sj_tele_labellll_01.setGeometry(10, 30, 65, 20)
+    self.sj_tele_lineEdit_01.setGeometry(85, 30, 400, 20)
+    self.sj_tele_labellll_02.setGeometry(495, 30, 65, 20)
+    self.sj_tele_lineEdit_02.setGeometry(570, 30, 400, 20)
+
     self.sj_stock_checkBox_01.setGeometry(10, 30, 70, 20)
     self.sj_stock_checkBox_02.setGeometry(90, 30, 70, 20)
     self.sj_stock_labellll_01.setGeometry(180, 30, 80, 20)
@@ -810,12 +813,7 @@ def SetUI(self):
     self.sj_coin_labellll_01.setGeometry(180, 30, 80, 20)
     self.sj_coin_lineEdit_01.setGeometry(270, 30, 50, 20)
     self.sj_coin_labellll_02.setGeometry(335, 30, 80, 20)
-    self.sj_coin_lineEdit_02.setGeometry(420, 30, 50, 20)
-
-    self.sj_tele_labellll_01.setGeometry(10, 30, 65, 20)
-    self.sj_tele_lineEdit_01.setGeometry(85, 30, 400, 20)
-    self.sj_tele_labellll_02.setGeometry(495, 30, 65, 20)
-    self.sj_tele_lineEdit_02.setGeometry(570, 30, 400, 20)
+    self.sj_coin_lineEdit_02.setGeometry(425, 30, 50, 20)
 
     self.sj_load_pushButton_01.setGeometry(1180, 30, 70, 22)
     self.sj_load_pushButton_02.setGeometry(1180, 30, 70, 22)

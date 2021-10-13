@@ -1,6 +1,6 @@
 import zipfile
 import datetime
-import pyqtgraph as pg
+import pyqtgraph
 from PyQt5.QtCore import Qt
 from threading import Thread
 from utility.setting import OPENAPI_PATH
@@ -126,9 +126,9 @@ def parseDat(trcode, lines):
     return enc_data
 
 
-class CustomViewBox(pg.ViewBox):
+class CustomViewBox(pyqtgraph.ViewBox):
     def __init__(self, *args, **kwds):
-        pg.ViewBox.__init__(self, *args, **kwds)
+        pyqtgraph.ViewBox.__init__(self, *args, **kwds)
         self.setMouseMode(self.RectMode)
         self.setMouseEnabled(x=False, y=False)
 
