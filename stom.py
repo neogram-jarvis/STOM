@@ -1617,6 +1617,8 @@ class Window(QtWidgets.QMainWindow):
             query_proc1.kill()
             query_proc2.kill()
             tele_proc.kill()
+            if self.dialog.isVisible():
+                self.dialog.close()
             if self.qtimer1.isActive():
                 self.qtimer1.stop()
             if self.qtimer2.isActive():
