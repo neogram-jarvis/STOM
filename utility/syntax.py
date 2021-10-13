@@ -37,7 +37,7 @@ class PythonHighlighter(QSyntaxHighlighter):
         '\+=', '-=', '\*=', '/=', '\%=', '\^', '\|', '\&', '\~', '>>', '<<'
     ]
     braces = ['\{', '\}', '\(', '\)', '\[', '\]']
-    type = ['int', 'float', 'round', 'str']
+    type = ['int', 'float', 'round', 'str', 'datetime']
 
     def __init__(self, document):
         QSyntaxHighlighter.__init__(self, document)

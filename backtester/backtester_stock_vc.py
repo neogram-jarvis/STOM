@@ -129,6 +129,7 @@ class BackTesterStockVc:
         매수 = True
         종목명 = self.df_name['종목명'][self.code]
         종목코드 = self.code
+
         현재가 = self.df['현재가'][self.index]
         시가 = self.df['시가'][self.index]
         고가 = self.df['고가'][self.index]
@@ -138,11 +139,12 @@ class BackTesterStockVc:
         당일거래대금 = self.df['당일거래대금'][self.index]
         VI해제시간 = strp_time('%Y%m%d%H%M%S', self.df['VI해제시간'][self.index])
         VI아래5호가 = self.df['VI아래5호가'][self.index]
+        초당거래대금 = self.df['초당거래대금'][self.index]
+        초당거래대금평균 = self.df['초당거래대금평균'][self.index]
         체결강도 = self.df['체결강도'][self.index]
         체결강도평균 = self.df['체결강도평균'][self.index]
         최고체결강도 = self.df['최고체결강도'][self.index]
-        초당거래대금 = self.df['초당거래대금'][self.index]
-        초당거래대금평균 = self.df['초당거래대금평균'][self.index]
+
         초당매수수량 = self.df['초당매수수량'][self.index]
         초당매도수량 = self.df['초당매도수량'][self.index]
         매도총잔량 = self.df['매도총잔량'][self.index]
@@ -171,7 +173,15 @@ class BackTesterStockVc:
         # 여기에 본인의 전략을 작성하십시오.
 
     def Buy(self):
+        매도호가5 = self.df['매도호가5'][self.index]
+        매도호가4 = self.df['매도호가4'][self.index]
+        매도호가3 = self.df['매도호가3'][self.index]
+        매도호가2 = self.df['매도호가2'][self.index]
         매도호가1 = self.df['매도호가1'][self.index]
+        매도잔량5 = self.df['매도잔량5'][self.index]
+        매도잔량4 = self.df['매도잔량4'][self.index]
+        매도잔량3 = self.df['매도잔량3'][self.index]
+        매도잔량2 = self.df['매도잔량2'][self.index]
         매도잔량1 = self.df['매도잔량1'][self.index]
         현재가 = self.df['현재가'][self.index]
         매수수량 = round(10000000 / 현재가, 8)
@@ -213,17 +223,20 @@ class BackTesterStockVc:
         종목코드 = self.code
         보유수량 = self.buycount
         매수시간 = self.buytime
+
         현재가 = self.df['현재가'][self.index]
         등락율 = self.df['등락율'][self.index]
         고저평균대비등락율 = self.df['고저평균대비등락율'][self.index]
+        VI해제시간 = strp_time('%Y%m%d%H%M%S', self.df['VI해제시간'][self.index])
         VI아래5호가 = self.df['VI아래5호가'][self.index]
+        초당거래대금 = self.df['초당거래대금'][self.index]
+        초당거래대금평균 = self.df['초당거래대금평균'][self.index]
         체결강도 = self.df['체결강도'][self.index]
         체결강도평균 = self.df['체결강도평균'][self.index]
         최고체결강도 = self.df['최고체결강도'][self.index]
-        초당거래대금 = self.df['초당거래대금'][self.index]
-        초당거래대금평균 = self.df['초당거래대금평균'][self.index]
         초당매수수량 = self.df['초당매수수량'][self.index]
         초당매도수량 = self.df['초당매도수량'][self.index]
+
         매도총잔량 = self.df['매도총잔량'][self.index]
         매수총잔량 = self.df['매수총잔량'][self.index]
         매도호가5 = self.df['매도호가5'][self.index]

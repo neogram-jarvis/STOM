@@ -447,7 +447,7 @@ class ReceiverKiwoom:
 
     def InsertViPrice(self, code, o):
         uvi, dvi, vid5price = self.GetVIPrice(code, o)
-        self.dict_vipr[code] = [True, timedelta_sec(-180), uvi, dvi, vid5price]
+        self.dict_vipr[code] = [True, timedelta_sec(-3600), uvi, dvi, vid5price]
 
     def GetVIPrice(self, code, std_price):
         uvi = std_price * 1.1

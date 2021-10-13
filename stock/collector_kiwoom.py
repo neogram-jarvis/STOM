@@ -55,10 +55,7 @@ class CollectorKiwoom:
         code = data[-3]
         dt = data[-2]
         receivetime = data[-1]
-
-        data.remove(code)
-        data.remove(dt)
-        data.remove(receivetime)
+        del data[-3:]
 
         if code not in self.dict_df.keys():
             columns = [

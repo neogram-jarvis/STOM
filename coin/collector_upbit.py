@@ -34,13 +34,11 @@ class CollectorUpbit:
         code = data[-3]
         dt = data[-2]
         receivetime = data[-1]
+        del data[-3:]
 
         if code not in self.dict_orderbook.keys():
             return
 
-        data.remove(code)
-        data.remove(dt)
-        data.remove(receivetime)
         data += self.dict_orderbook[code]
 
         if code not in self.dict_df.keys():
@@ -65,5 +63,5 @@ class CollectorUpbit:
 
     def UpdateOrderbook(self, data):
         code = data[0]
-        data.remove(code)
+        del data[0]
         self.dict_orderbook[code] = data
