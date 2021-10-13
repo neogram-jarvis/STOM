@@ -264,18 +264,18 @@ def SetUI(self):
     self.progressBar.setStyleSheet(style_pgbar)
 
     self.stt_tableWidget = setTablewidget(self.st_tab, columns_tt, 1)
-    self.std_tableWidget = setTablewidget(self.st_tab, columns_td, 13)
+    self.std_tableWidget = setTablewidget(self.st_tab, columns_td, 13, clicked=self.CellClicked_01)
     self.stj_tableWidget = setTablewidget(self.st_tab, columns_tj, 1)
-    self.sjg_tableWidget = setTablewidget(self.st_tab, columns_jg, 13, clicked=self.CellClicked_01)
+    self.sjg_tableWidget = setTablewidget(self.st_tab, columns_jg, 13, clicked=self.CellClicked_02)
     self.sgj_tableWidget = setTablewidget(self.st_tab, columns_gj3, 15)
-    self.scj_tableWidget = setTablewidget(self.st_tab, columns_cj, 15)
+    self.scj_tableWidget = setTablewidget(self.st_tab, columns_cj, 15, clicked=self.CellClicked_01)
 
     self.s_calendarWidget = QtWidgets.QCalendarWidget(self.st_tab)
     todayDate = QtCore.QDate.currentDate()
     self.s_calendarWidget.setCurrentPage(todayDate.year(), todayDate.month())
     self.s_calendarWidget.clicked.connect(lambda: self.CalendarClicked('S'))
     self.sdt_tableWidget = setTablewidget(self.st_tab, columns_dt, 1)
-    self.sds_tableWidget = setTablewidget(self.st_tab, columns_dd, 19, clicked=self.CellClicked_03)
+    self.sds_tableWidget = setTablewidget(self.st_tab, columns_dd, 19, clicked=self.CellClicked_04)
 
     self.snt_pushButton_01 = setPushbutton('일별집계', box=self.st_tab, click=self.ButtonClicked_06, cmd='S일별집계')
     self.snt_pushButton_02 = setPushbutton('월별집계', box=self.st_tab, click=self.ButtonClicked_06, cmd='S월별집계')
@@ -293,11 +293,11 @@ def SetUI(self):
     self.sns_tableWidget.setVisible(False)
 
     self.ctt_tableWidget = setTablewidget(self.ct_tab, columns_tt, 1)
-    self.ctd_tableWidget = setTablewidget(self.ct_tab, columns_td, 13)
+    self.ctd_tableWidget = setTablewidget(self.ct_tab, columns_td, 13, clicked=self.CellClicked_01)
     self.ctj_tableWidget = setTablewidget(self.ct_tab, columns_tj, 1)
-    self.cjg_tableWidget = setTablewidget(self.ct_tab, columns_jg, 13, clicked=self.CellClicked_02)
+    self.cjg_tableWidget = setTablewidget(self.ct_tab, columns_jg, 13, clicked=self.CellClicked_03)
     self.cgj_tableWidget = setTablewidget(self.ct_tab, columns_gj3, 15)
-    self.ccj_tableWidget = setTablewidget(self.ct_tab, columns_cj, 15)
+    self.ccj_tableWidget = setTablewidget(self.ct_tab, columns_cj, 15, clicked=self.CellClicked_01)
 
     self.c_calendarWidget = QtWidgets.QCalendarWidget(self.ct_tab)
     self.c_calendarWidget.setCurrentPage(todayDate.year(), todayDate.month())

@@ -272,6 +272,26 @@ class Window(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def CellClicked_01(self, row):
+        tableWidget = None
+        if self.focusWidget() == self.std_tableWidget:
+            tableWidget = self.std_tableWidget
+        elif self.focusWidget() == self.scj_tableWidget:
+            tableWidget = self.scj_tableWidget
+        elif self.focusWidget() == self.ctd_tableWidget:
+            tableWidget = self.ctd_tableWidget
+        elif self.focusWidget() == self.ccj_tableWidget:
+            tableWidget = self.ccj_tableWidget
+        if tableWidget is None:
+            return
+        item = tableWidget.item(row, 0)
+        if item is None:
+            return
+        name = item.text()
+        self.ShowDialog()
+        self.DrawChart(name, 60, strf_time('%Y%m%d'))
+
+    @QtCore.pyqtSlot(int)
+    def CellClicked_02(self, row):
         item = self.sjg_tableWidget.item(row, 0)
         if item is None:
             return
@@ -286,7 +306,7 @@ class Window(QtWidgets.QMainWindow):
             stockQ.put(['매도', self.dict_code[name], name, c, oc])
 
     @QtCore.pyqtSlot(int)
-    def CellClicked_02(self, row):
+    def CellClicked_03(self, row):
         item = self.cjg_tableWidget.item(row, 0)
         if item is None:
             return
@@ -301,25 +321,24 @@ class Window(QtWidgets.QMainWindow):
             coinQ.put(['매도', code, c, oc])
 
     @QtCore.pyqtSlot(int)
-    def CellClicked_03(self, row):
-        searchdate = self.s_calendarWidget.selectedDate().toString('yyyyMMdd')
-        item = self.sds_tableWidget.item(row, 1)
-        if item is None:
-            return
-        name = self.cds_tableWidget.item(row, 1).text()
-        self.ShowDialog()
-        tickcount = int(self.ct_lineEdit_01.text()) if self.ct_lineEdit_01.text() != '' else 60
-        self.DrawChart(name, tickcount, searchdate)
-
-    @QtCore.pyqtSlot(int)
     def CellClicked_04(self, row):
-        searchdate = self.c_calendarWidget.selectedDate().toString('yyyyMMdd')
-        item = self.cds_tableWidget.item(row, 1)
+        tableWidget = None
+        searchdate = ''
+        if self.focusWidget() == self.sds_tableWidget:
+            tableWidget = self.sds_tableWidget
+            searchdate = self.s_calendarWidget.selectedDate().toString('yyyyMMdd')
+        elif self.focusWidget() == self.cds_tableWidget:
+            tableWidget = self.cds_tableWidget
+            searchdate = self.c_calendarWidget.selectedDate().toString('yyyyMMdd')
+        if tableWidget is None:
+            return
+        item = tableWidget.item(row, 1)
         if item is None:
             return
-        name = self.cds_tableWidget.item(row, 1).text()
+        name = item.text()
+        linetext = self.ct_lineEdit_01.text()
+        tickcount = int(linetext) if linetext != '' else 60
         self.ShowDialog()
-        tickcount = int(self.ct_lineEdit_01.text()) if self.ct_lineEdit_01.text() != '' else 60
         self.DrawChart(name, tickcount, searchdate)
 
     def ShowDialog(self):
@@ -327,15 +346,14 @@ class Window(QtWidgets.QMainWindow):
             self.dialog.show()
 
     def ReturnPress_01(self):
-        if self.dialog.isVisible():
-            searchdate = self.ct_dateEdit.date().toString('yyyyMMdd')
-            tickcount = self.ct_lineEdit_01.text()
-            if tickcount == '':
-                return
-            name = self.ct_lineEdit_02.text()
-            if name == '':
-                return
-            self.DrawChart(name, int(tickcount), searchdate)
+        searchdate = self.ct_dateEdit.date().toString('yyyyMMdd')
+        tickcount = self.ct_lineEdit_01.text()
+        if tickcount == '':
+            return
+        name = self.ct_lineEdit_02.text()
+        if name == '':
+            return
+        self.DrawChart(name, int(tickcount), searchdate)
 
     def DrawChart(self, name, tickcount, searchdate):
         coin = False
