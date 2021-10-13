@@ -42,7 +42,7 @@ class StrategyStock:
 
         if self.init_var is not None:
             try:
-                exec(self.init_var, None, locals())
+                exec(self.init_var, None, globals())
             except Exception as e:
                 self.windowQ.put([ui_num['S단순텍스트'], f'전략스 설정 오류 알림 - __init__ {e}'])
 
