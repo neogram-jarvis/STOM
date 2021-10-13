@@ -275,10 +275,14 @@ class Window(QtWidgets.QMainWindow):
         tableWidget = None
         if self.focusWidget() == self.std_tableWidget:
             tableWidget = self.std_tableWidget
+        elif self.focusWidget() == self.sgj_tableWidget:
+            tableWidget = self.sgj_tableWidget
         elif self.focusWidget() == self.scj_tableWidget:
             tableWidget = self.scj_tableWidget
         elif self.focusWidget() == self.ctd_tableWidget:
             tableWidget = self.ctd_tableWidget
+        elif self.focusWidget() == self.cgj_tableWidget:
+            tableWidget = self.cgj_tableWidget
         elif self.focusWidget() == self.ccj_tableWidget:
             tableWidget = self.ccj_tableWidget
         if tableWidget is None:
