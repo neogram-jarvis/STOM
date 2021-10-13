@@ -290,9 +290,11 @@ class Window(QtWidgets.QMainWindow):
         item = tableWidget.item(row, 0)
         if item is None:
             return
-        name = item.text()
         self.ShowDialog()
-        self.DrawChart(name, 60, strf_time('%Y%m%d'))
+        name = item.text()
+        linetext = self.ct_lineEdit_01.text()
+        tickcount = int(linetext) if linetext != '' else 60
+        self.DrawChart(name, tickcount, strf_time('%Y%m%d'))
 
     @QtCore.pyqtSlot(int)
     def CellClicked_02(self, row):
@@ -339,10 +341,10 @@ class Window(QtWidgets.QMainWindow):
         item = tableWidget.item(row, 1)
         if item is None:
             return
+        self.ShowDialog()
         name = item.text()
         linetext = self.ct_lineEdit_01.text()
         tickcount = int(linetext) if linetext != '' else 60
-        self.ShowDialog()
         self.DrawChart(name, tickcount, searchdate)
 
     def ShowDialog(self):
@@ -367,6 +369,7 @@ class Window(QtWidgets.QMainWindow):
         elif name in self.dict_code.values():
             con = sqlite3.connect(DB_STOCK_TICK)
             code = name
+            name = self.dict_name[code]
         else:
             con = sqlite3.connect(DB_COIN_TICK)
             code = name
@@ -468,6 +471,7 @@ class Window(QtWidgets.QMainWindow):
         self.ctpg_02.plot(df['최고체결강도'], pen=(180, 0, 0))
         self.ctpg_03.plot(df['초당거래대금'], pen=(0, 0, 255))
         self.ctpg_03.plot(df['체결강도평균'], pen=(0, 180, 180))
+        self.ctpg_01.getAxis('bottom').setLabel(text=name)
         crosshair(main_pg=self.ctpg_01, sub_pg1=self.ctpg_02, sub_pg2=self.ctpg_03)
 
     def ButtonClicked_01(self):
