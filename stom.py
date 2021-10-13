@@ -1446,8 +1446,7 @@ class Window(QtWidgets.QMainWindow):
             return
 
         if len(df) == 0:
-            if tableWidget.item(1, 0) is not None:
-                tableWidget.clearContents()
+            tableWidget.clearContents()
             return
 
         tableWidget.setRowCount(len(df))
@@ -1519,8 +1518,7 @@ class Window(QtWidgets.QMainWindow):
             gj_tableWidget = self.cgj_tableWidget
 
         if len(dict_df) == 0:
-            if gj_tableWidget.item(1, 0) is not None:
-                gj_tableWidget.clearContents()
+            gj_tableWidget.clearContents()
             return
 
         gj_tableWidget.setRowCount(len(dict_df))
